@@ -159,6 +159,8 @@ Please access detail API.
 
 ```Shell
 + application
+  + Example
+    - Index.php
 + conf
   - config.php.sample
 + lib
@@ -196,3 +198,27 @@ Please access detail API.
 
 ## 五、创建`API`
 
+在`Application`中根据业务需要创建一个子文件夹（也可以是多级文件夹），在其中创建一个`API`类，该类继承`Lib\Core\AbstractBaseApi`类，并实现`run()`方法。
+
+例如，创建`Example`文件夹，并在其中创建`Index.php`，文件内容如下：
+
+```PHP
+<?php
+namespace Application\Example;
+
+use Lib\Core\AbstractBaseApi;
+
+class Index extends AbstractBaeApi
+{
+  protected $httpMethod = 'GET';
+
+  public function run()
+  {
+    $result = [
+      'code' => 200,
+      'message' => 'OK',
+    ];
+    $this->responseJson($result);
+  }
+}
+```

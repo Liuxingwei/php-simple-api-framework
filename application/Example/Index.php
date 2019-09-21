@@ -1,8 +1,8 @@
 <?php
 namespace Application\Example;
 
-use Lib\AbstractBaseApi;
-use Lib\ErrorCode;
+use Lib\Core\AbstractBaseApi;
+use Lib\Core\ErrorCode;
 
 class Index extends AbstractBaseApi
 {
