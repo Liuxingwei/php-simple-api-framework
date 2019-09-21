@@ -2,3 +2,4 @@ composer.lock
 .vscode/launch.json
 .idea
 conf/config.php.bak
+conf/config.php
