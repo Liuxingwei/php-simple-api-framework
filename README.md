@@ -30,7 +30,7 @@
 ### 1. composer
 
 ```Shell
-composer require liuxingwei/simple-api-framework
+composer create-project liuxingwei/simple-api-framework
 ```
 
 ### 2. github
@@ -47,7 +47,7 @@ git clone https://github.com/Liuxingwei/php-simple-api-framework.git
 
 使用`PHP`内建服务时，无需`nginx`、`apache`，只需`PHP`。
 
-在命令行下，切换至`public`文件夹（`safpath`指`SAF`的存储路径），执行`php -S localhost:xxxx index.php`即可，其中`xxxx`为端口号。
+在命令行下，切换至`public`文件夹（`safpath`指`SAF`的路径），执行`php -S localhost:xxxx index.php`即可，其中`xxxx`为端口号。
 
 示例：
 
@@ -86,7 +86,7 @@ Please access detail API.
 
 在打开的文件中，复制`VirtualHost`段，修改端口，并将路径修改为项目目录的`public`文件夹。
 
-示例（`safpath`即指`SAF`的存放路径）：
+示例（`safpath`即指`SAF`的路径）：
 
 要复制的段：
 
@@ -152,3 +152,47 @@ Please access detail API.
 ```Shell
 Please access detail API.
 ```
+
+## 四、目录结构
+
+初始的项目目录结构如下：
+
+```Shell
++ application
++ conf
+  - config.php.sample
++ lib
+  + Core
+    - AbstractBaseApi.php
+    - BaseApiInterFace.php
+    - bootstrap.php
+    - DB.php
+    - ErrorCode.php
+    - Response.php
+    - SafException.php
++ doc
+  - DB-Class-Usage.md
++ model
++ public
+  - .htaccess
+  - index.html
+  - index.php
++ vendor
+  + composer
+    - autoload_classmap.php
+    - autoload_namespaces.php
+    - autoload_psr4.php
+    - autoload_real.php
+    - autoload_static.php
+    - ClassLoader.php
+    - installed.json
+    - LICENSE
+  - autoload.php
+- .gitignore
+- composer.json
+- composer.lock
+- README.md
+```
+
+## 五、创建`API`
+
