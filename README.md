@@ -78,7 +78,7 @@ Please access detail API.
 
 在打开的文件中，复制`VirtualHost`段，修改端口，并将路径修改为项目目录的`public`文件夹。
 
-示例：
+示例（`safpath`即指`SAF`的存放路径）：
 
 要复制的段：
 
@@ -101,8 +101,8 @@ Please access detail API.
 <VirtualHost *:xxxx>
   ServerName localhost
   ServerAlias localhost
-  DocumentRoot "F:\Workspace\CollectionCloud\php\public"
-  <Directory "F:\Workspace\CollectionCloud\php\public">
+  DocumentRoot "safpath/public"
+  <Directory "safpath/public">
     Options +Indexes +Includes +FollowSymLinks +MultiViews
     AllowOverride All
     Require local
@@ -128,8 +128,8 @@ Please access detail API.
 <VirtualHost *:xxxx>
   ServerName localhost
   ServerAlias localhost
-  DocumentRoot "F:\Workspace\CollectionCloud\php\public"
-  <Directory "F:\Workspace\CollectionCloud\php\public">
+  DocumentRoot "safpath/public"
+  <Directory "safpath/public">
     Options +Indexes +Includes +FollowSymLinks +MultiViews
     AllowOverride All
     Require local
