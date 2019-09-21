@@ -1,0 +1,23 @@
+{
+    "name": "liuxingwei/simple-api-framework",
+    "version": "0.0.1",
+    "authors": [
+        {
+            "name": "liuxingwei",
+            "email": "matchless@163.com"
+        }
+    ],
+    "require": {
+        "php": ">=5.6.0",
+        "ext-pdo": "*",
+        "ext-json": "*",
+        "ext-mbstring": "*",
+        "ext-sockets": "*"
+    },
+    "autoload": {
+        "psr-4": {
+            "Lib\\": "lib",
+            "Application\\": "application"
+        }
+    }
+}

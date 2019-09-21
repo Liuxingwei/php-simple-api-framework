@@ -1,0 +1,13 @@
+<?php
+return [
+    'runtime' => 'development', // 运行环境，development 为开发环境，test 为测试环境，product 为生产环境
+    'db_config' => [ // 数据库配置
+        'dbms' => 'mysql',
+        'host' => 'localhost',
+        'port' => '3306',
+        'user' => 'root',
+        'password' => '123456',
+        'dbname' => 'web2data',
+    ],
+    'debug' => true, // 是否开启 debug，开启 debug 后，可以在提交中带有 debug 参数，返回的数据中将有 debug 项
+];
