@@ -2,6 +2,7 @@
     "name": "liuxingwei/simple-api-framework",
     "version": "0.0.1",
     "license": "MIT",
+    "minimum-stability": "stable",
     "authors": [
         {
             "name": "liuxingwei",
