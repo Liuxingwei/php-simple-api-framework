@@ -98,7 +98,7 @@ Please access detail API.
 复制后修改`IP`和`DocumentRoot`、`Directory`路径：
 
 ```Shell
-<VirtualHost *:8048>
+<VirtualHost *:xxxx>
   ServerName localhost
   ServerAlias localhost
   DocumentRoot "F:\Workspace\CollectionCloud\php\public"
@@ -125,7 +125,7 @@ Please access detail API.
 </VirtualHost>
 
 
-<VirtualHost *:8009>
+<VirtualHost *:xxxx>
   ServerName localhost
   ServerAlias localhost
   DocumentRoot "F:\Workspace\CollectionCloud\php\public"
@@ -139,12 +139,8 @@ Please access detail API.
 
 重启`Apache`。
 
-浏览器打开`localhost:8848`，看到如下内容，服务启动成功：
+浏览器打开`localhost:xxxx`，看到如下内容，服务启动成功：
 
 ```Shell
 Please access detail API.
 ```
-
-## 四、postman
-
-测试`API`，可以借助`Postman`，它能够记录调用历史，还可以将可重用的测试`url`保存在`Collection`中重复调用。
