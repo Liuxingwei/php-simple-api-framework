@@ -1,6 +1,7 @@
 {
     "name": "liuxingwei/simple-api-framework",
     "version": "0.0.1",
+    "license": "MIT",
     "authors": [
         {
             "name": "liuxingwei",
@@ -11,8 +12,7 @@
         "php": ">=5.6.0",
         "ext-pdo": "*",
         "ext-json": "*",
-        "ext-mbstring": "*",
-        "ext-sockets": "*"
+        "ext-mbstring": "*"
     },
     "autoload": {
         "psr-4": {
