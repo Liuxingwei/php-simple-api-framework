@@ -29,7 +29,15 @@
 
 ### 1. composer
 
+```Shell
+composer require liuxingwei/simple-api-framework
+```
+
 ### 2. github
+
+```Shell
+git clone https://github.com/Liuxingwei/php-simple-api-framework.git
+```
 
 ## 三、环境搭建
 
