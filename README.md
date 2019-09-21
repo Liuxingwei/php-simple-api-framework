@@ -39,12 +39,12 @@
 
 使用`PHP`内建服务时，无需`nginx`、`apache`，只需`PHP`。
 
-在命令行下，切换至`public`文件夹，执行`php -S localhost:xxxx index.php`即可，其中`xxxx`为端口号。
+在命令行下，切换至`public`文件夹（`safpath`指`SAF`的存储路径），执行`php -S localhost:xxxx index.php`即可，其中`xxxx`为端口号。
 
 示例：
 
 ```Shell
->cd CollectionCloud\php\public
+>cd safpath/public
 >php -S localhost:xxxx index.php
 ```
 
