@@ -1,9 +1,7 @@
 <?php
 namespace Lib\Core;
 
-use Exception;
-
-abstract class AbstractBaseApi implements BaseApiInterface
+abstract class AbstractBaseApi
 {
     /**
      * 表示 HTTP METHOD 的字符串

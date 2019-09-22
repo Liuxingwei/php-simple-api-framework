@@ -18,7 +18,7 @@ foreach ($scriptArray as $key => $value) {
 $className = '\\Application\\Api' . preg_replace_callback('|_(.)|', static function ($match) {
     return strtoupper($match[1]);
 }, implode('\\', $scriptArray));
-if (!class_exists($className) || (new ReflectionClass($className))->isAbstract()) {
+if (!class_exists($className) || (new ReflectionClass($className))->isAbstract() || !method_exists($className, 'run')) {
     SafException::throw(ErrorCode::mapError(ErrorCode::API_NOT_EXISTS, ['api' => $scriptPath]));
 }
 $instance = new $className;
