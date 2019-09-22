@@ -6,7 +6,7 @@ if (file_exists($configFile)) {
 } else {
     $_ENV['config'] = [];
 }
-if ($_ENV['config']['runtime'] != 'product') {
+if (isset($_ENV['config']['runtime']) && $_ENV['config']['runtime'] != 'product') {
     header("Access-Control-Allow-Origin: http://localhost:8080");
     header("Access-Control-Allow-Methods: POST, GET, OPTIONS, PUT, DELETE");
     header('Access-Control-Allow-Headers: x-requested-with, content-type, key, debug');

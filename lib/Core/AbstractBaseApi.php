@@ -23,7 +23,27 @@ abstract class AbstractBaseApi implements BaseApiInterface
 
     public final function __construct()
     {
+        $this->httpMethodCheck();
+        $this->mapParams();
         $this->init();
+    }
+
+    /**
+     * 校验 HTTP METHOD 是否合法，是否与 API 定义的 HTTP METHOD 相符
+     * 如果不合法或不相符，则直接异常跳出
+     * 
+     * @return void
+     */
+    private final function httpMethodCheck()
+    {
+        $httpMethod = \strtoupper($_SERVER['REQUEST_METHOD']);
+        $exceptHttpMethod = \strtoupper($this->httpMethod);
+        if ($httpMethod !== 'POST' && $httpMethod !== 'GET') {
+            SafException::throw(ErrorCode::HTTP_METHOD_ERROR);
+        }
+        if ($httpMethod !== $exceptHttpMethod) {
+            SafException::throw(ErrorCode::API_NOT_EXISTS);
+        }
     }
 
     /**
@@ -34,20 +54,12 @@ abstract class AbstractBaseApi implements BaseApiInterface
     abstract public function run();
 
     /**
-     * API初始化方法
-     * 对提交方式进行校验，并在通过校验后，将参数匹配至 $httpParams。
+     * 参数初始化方法
+     * 将参数匹配至 $httpParams。
      */
-    protected function init()
+    private final function mapParams()
     {
-        $httpMethod = \strtoupper($_SERVER['REQUEST_METHOD']);
-        $exceptHttpMethod = \strtoupper($this->httpMethod);
-        if ($httpMethod !== 'POST' && $httpMethod !== 'GET') {
-            SafException::throw(ErrorCode::HTTP_METHOD_ERROR);
-        }
-        if ($httpMethod !== $exceptHttpMethod) {
-            SafException::throw(ErrorCode::API_NOT_EXISTS);
-        }
-        if ('POST' == $httpMethod) {
+        if ('POST' == \strtoupper($this->httpMethod)) {
             $this->httpParams = $_POST;
         } else {
             $this->httpParams = $_GET;
@@ -55,6 +67,22 @@ abstract class AbstractBaseApi implements BaseApiInterface
         return true;
     }
 
+    /**
+     * 初始化钩子方法，用于在 __construct 中调用
+     * 这里放置了一个默认的空函数实现，子函数可以 override 它，做一些自己的初始化工作
+     *
+     * @return void
+     */
+    protected function init() {
+    }
+
+    /**
+     * 输出 json 结果
+     *
+     * @param array $result 待输出的数据
+     * @param integer $httpStatus 
+     * @return void
+     */
     public final function responseJson($result, $httpStatus = 200) {
         Response::json($result, $httpStatus);
     }

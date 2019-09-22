@@ -198,7 +198,11 @@ Please access detail API.
 
 ## 五、创建`API`
 
-在`Application`中根据业务需要创建一个子文件夹（也可以是多级文件夹），在其中创建一个`API`类，该类继承`Lib\Core\AbstractBaseApi`类，并实现`run()`方法。
+在`Application`中根据业务需要创建一个子文件夹（也可以是多级文件夹），在其中创建一个`API`类。
+
+该类继承`Lib\Core\AbstractBaseApi`类，并实现`run()`方法。
+
+还要为该指定`HTTP METHOD`，方法是为其定义一个名为`$httpMethod`的变量，并将其赋值为`GET`或`POST`字符串。
 
 例如，创建`Example`文件夹，并在其中创建`Index.php`，文件内容如下：
 
@@ -222,3 +226,15 @@ class Index extends AbstractBaeApi
   }
 }
 ```
+
+此时，向服务器的`/application/example/index`发出`GET`请求，即可收到值为
+
+```Javascript
+{
+  "code": 200,
+  "message": "OK"
+}
+```
+
+的`json`返回。
+
