@@ -1,4 +1,5 @@
 <?php
+
 namespace Lib\Core;
 
 use InvalidArgumentException;
@@ -8,7 +9,8 @@ use PDO;
  * 数据库操作类
  * 此类仅适用于 MySQL
  */
-class DB {
+class DB
+{
 
     /**
      * 单例数据库连接实例集合
@@ -174,7 +176,8 @@ class DB {
      * @param string $table 对应的表名，如果为空，则不置表名
      * @return DB 数据库类实例
      */
-    static public function getInstance($table = null, $dbConfig = null) {
+    static public function getInstance($table = null, $dbConfig = null)
+    {
         if (is_array($table) && (null == $dbConfig || is_string($dbConfig))) {
             $temp = $dbConfig;
             $dbConfig = $table;
@@ -182,7 +185,7 @@ class DB {
         }
         if ((null == $dbConfig || is_array($dbConfig)) && (null == $table || is_string($table))) {
             if (is_string($table)) {
-                $class = '\\Model\\' . ucfirst($table);
+                $class = self::tableName2ClassName($table);
                 if (class_exists($class)) {
                     return new $class($dbConfig);
                 } else {
@@ -243,8 +246,24 @@ class DB {
         $this->dbh = DB::$connections[$key];
 
         if ('Lib\DB' !== ($className = get_class($this)) && is_null($this->table)) {
-            $this->table(strtolower(substr($className, stripos($className, '\\') + 1)));
+            $this->table($this->className2TableName($className));
         }
+    }
+
+    public function className2TableName($className)
+    {
+        $tablePart = lcfirst(substr($className, strripos($className, '\\') + 1));
+        $tableName = preg_replace_callback('|([A-Z])|', static function ($match) {
+            return '_' . strtoupper($match[1]);
+        }, $tablePart);
+        return strtolower($tableName);
+    }
+
+    public static function tableName2ClassName($tableName)
+    {
+        return '\\Model\\' . ucfirst(preg_replace_callback('|_(.)|', static function ($match) {
+            return strtoupper($match[1]);
+        }, $tableName));
     }
 
     /**
@@ -281,7 +300,8 @@ class DB {
      *
      * @return \Lib\DB 用于链式调用
      */
-    public function clear() {
+    public function clear()
+    {
         $this->sth = null;
         $this->fields = null;
         $this->order = null;
@@ -314,7 +334,8 @@ class DB {
      * @deprecated
      * @return PDO
      */
-    public function dbh() {
+    public function dbh()
+    {
         return $this->dbh;
     }
 
@@ -324,7 +345,8 @@ class DB {
      * 
      * @return PDOStatement
      */
-    public function sth() {
+    public function sth()
+    {
         return $this->sth;
     }
 
@@ -349,7 +371,8 @@ class DB {
      * @param String $field 查询语句要返回的列（字段）
      * @return DB 返回当前类实例对象，可以用于链式操作
      */
-    public function fields($fields) {
+    public function fields($fields)
+    {
         $this->fields = $fields;
         return $this;
     }
@@ -364,8 +387,9 @@ class DB {
      * @param String $order 排序字符串
      * @return DB 返回当前类实例对象，可以用于链式操作
      */
-    public function order($order) {
-        $this->order = $order; 
+    public function order($order)
+    {
+        $this->order = $order;
         return $this;
     }
 
@@ -387,7 +411,8 @@ class DB {
      * @param $params array 如果 $where 使用了占位符，$params 参数即为实际值。如果 $where 没有使用占位符，此参数可省略。
      * @return DB 返回当前类实例对象，可以用于链式操作 
      */
-    public function where($where, $params = []) {
+    public function where($where, $params = [])
+    {
         if (!is_null($where) && $where !== '' && $where !== false) {
             $this->where = $where;
         } else {
@@ -405,7 +430,8 @@ class DB {
      * @param array $params 匹配入字符串中的参数数组
      * @return string 匹配后的 SQL
      */
-    private function mapParams($string, $params) {
+    private function mapParams($string, $params)
+    {
         foreach ($params as $key => $value) {
             $replaceValue = "'" . $value . "'";
             $count = 1;
@@ -427,11 +453,13 @@ class DB {
 
      * @return DB 返回当前类实例对象，可以用于链式操作
      */
-    public function table($table) {
-        $this->table = $table; return $this;
+    public function table($table)
+    {
+        $this->table = $table;
+        return $this;
     }
 
-    
+
     /** 
      * 指定表间关联 
      *
@@ -444,7 +472,8 @@ class DB {
      * @param  String $join
      * @return DB 返回当前类实例对象，可以用于链式操作
      */
-    public function join($join) {
+    public function join($join)
+    {
         $this->join = $join;
         return $this;
     }
@@ -461,7 +490,8 @@ class DB {
      * @param array 要插入数据的 map 数组（关联数组），键对应要插入的字段，值对应该字段要插入的值。
      * @return Boolean|Integer 如果插入失败，返回 false。插入成功，或者返回新插入行的自增主键（有自增主键），或者返回 0 （无自增主键）。
      */
-    public function insert($vals) {
+    public function insert($vals)
+    {
         $this->sql = "INSERT INTO " . $this->table . " (";
         $this->fields = array();
         $placeholders = array();
@@ -479,14 +509,14 @@ class DB {
         if (!$this->sth()->execute($this->insertParams)) {
             $this->catchError();
             return false;
-        } 
+        }
         $row = $this->sth()->rowCount();
         if ($row != 1) {
             return false;
         }
         return $this->dbh()->lastInsertId();
     }
-    
+
     /**
      * 更新表中数据
      * 参数说明与示例：
@@ -500,7 +530,8 @@ class DB {
      * @param array $vals 要更新的字段和值构成的关联数组，其中键为字段名，值为更新后的值
      * @return Boolean|Integer 更新失败返回 false，成功返回影响行数。
      */
-    public function update($vals) {
+    public function update($vals)
+    {
         $this->sql = "UPDATE " . $this->table . " SET";
         if (is_array($vals)) {
             $replaces = array();
@@ -519,7 +550,7 @@ class DB {
         $this->actualSql = $this->mapParams($this->sql, $this->combineUpdateParams());
 
         $this->sth = $this->dbh()->prepare($this->sql, array(PDO::ATTR_CURSOR => PDO::CURSOR_FWDONLY));
-        
+
         if (!$this->sth()->execute($this->combineUpdateParams())) {
             $this->catchError();
             return false;
@@ -533,7 +564,8 @@ class DB {
      *
      * @return array 拼装后的参数数组
      */
-    private function combineUpdateParams() {
+    private function combineUpdateParams()
+    {
         return $this->updateParams + $this->whereParams;
     }
 
@@ -546,7 +578,8 @@ class DB {
      *   因为 PHP 中 0 是假值，仅在严格相等判断时，才与 false 有区别，要用 false === $db->delete(...) 作判断。
      * @return 失败返回 false，成功返回影响行数。
      */
-    public function delete() {
+    public function delete()
+    {
         $this->sql = "DELETE FROM " . $this->table;
         if (!is_null($this->where)) {
             $this->sql .= ' WHERE ' . $this->where;
@@ -572,7 +605,8 @@ class DB {
      * 
      * @return array 一个索引为结果集列名和以0开始的列号的数组
      */
-    public function selectOne() {
+    public function selectOne()
+    {
         if (is_null($this->fields)) {
             $this->fields = '*';
         }
@@ -596,7 +630,8 @@ class DB {
      * 
      * @return array 返回一个包含结果集中所有符合条件行的数组。该数组的每一行为一个索引为列名和以0开始的列号的数组。
      */
-    public function select() {
+    public function select()
+    {
         if (is_null($this->fields)) {
             $this->fields = '*';
         }
@@ -623,7 +658,8 @@ class DB {
      *
      * @return array
      */
-    private function combineSelectParams() {
+    private function combineSelectParams()
+    {
         return $this->whereParams + $this->havingParams;
     }
 
@@ -636,7 +672,8 @@ class DB {
      * @param Integer $index 要获取的列在 fields() 方法中指定的列中的序号，从 0 开始计
      * @return Mixted 返回值类型与列类型相关
      */
-    public function selectColumn($index) {
+    public function selectColumn($index)
+    {
         if (is_null($this->fields)) {
             $this->fields = '*';
         }
@@ -659,7 +696,8 @@ class DB {
      * @param Imteger $pageSize 每页的行数
      * @return DB 返回当前类实例对象，可以用于链式操作
      */
-    public function setPageSize($pageSize) {
+    public function setPageSize($pageSize)
+    {
         $this->pageSize = $pageSize;
         return $this;
     }
@@ -672,7 +710,8 @@ class DB {
      * @param Integer $page 要获取的数据的页码
      * @return array 返回一个包含结果集中所有符合条件行的数组。该数组的每一行为一个索引为列名和以0开始的列号的数组。
      */
-    public function selectPage($page = 1) {
+    public function selectPage($page = 1)
+    {
         $this->page = $page;
         $res = $this->select();
         $this->count();
@@ -687,7 +726,8 @@ class DB {
      *   $db->table('user')->where("status = 'ENABLED'")->count();
      * @return Integer 结果集总行数
      */
-    public function count() {
+    public function count()
+    {
         $this->count = 0;
         if ($this->group) {
             $countSql = 'SELECT FOUND_ROWS()';
@@ -711,7 +751,8 @@ class DB {
      *   $db->table('user')->where("status = 'ENABLED'")->setPageSize(15)->calcPages();
      * @return Integer 符合条件的用户列表总页数
      */
-    public function calcPages() {
+    public function calcPages()
+    {
         $this->totalPages = ceil($this->count / $this->pageSize);
         return $this->totalPages;
     }
@@ -724,7 +765,8 @@ class DB {
      *   $db->totalPages();
      * @return Integer 总页数
      */
-    public function totalPages() {
+    public function totalPages()
+    {
         return $this->totalPages;
     }
 
@@ -735,7 +777,8 @@ class DB {
      *   $db->page();
      * @return Integer 当前页码
      */
-    public function page() {
+    public function page()
+    {
         return $this->page;
     }
 
@@ -746,7 +789,8 @@ class DB {
      *   $db->totalPages();
      * @return Integer 结果集总行数
      */
-    public function totalRows() {
+    public function totalRows()
+    {
         return $this->count;
     }
 
@@ -757,7 +801,8 @@ class DB {
      *   $db->pageSize();
      * @return Integer 每页的行数设置
      */
-    public function pageSize() {
+    public function pageSize()
+    {
         return $this->pageSize;
     }
 
@@ -769,7 +814,8 @@ class DB {
      *   $db->prev();
      * @return Integer 前一页页码
      */
-    public function prev() {
+    public function prev()
+    {
         if ($this->page == 1) {
             return $this->page;
         } else {
@@ -784,14 +830,15 @@ class DB {
      *   $db->next();
      * @return Integer 后一页页码
      */
-    public function next() {
+    public function next()
+    {
         if ($this->page == $this->totalPages) {
             return $this->page;
         } else {
             return $this->page + 1;
         }
     }
-    
+
     /**
      * 返回除分页数据集外的所有分页信息
      * 包含：
@@ -805,7 +852,8 @@ class DB {
      * 
      * @return array 除分页数据集外的所有分页信息
      */
-    public function pagerationInfo() {
+    public function pagerationInfo()
+    {
         $res = [
             'totalRows' => $this->totalRows(), // 总条数
             'totalPages' => $this->totalPages(), // 总页数
@@ -849,7 +897,8 @@ class DB {
      * @param $params array 如果 $having 使用了占位符，$params 参数即为实际值。如果 $having 没有使用占位符，此参数可省略。
      * @return DB 返回当前类实例对象，可以用于链式操作
      */
-    public function having($having, $params = []) {
+    public function having($having, $params = [])
+    {
         if (!is_null($having) && $having !== '' && $having !== false) {
             $this->having = $having;
         } else {
@@ -897,7 +946,8 @@ class DB {
      * 返回拼接后的 SQL 字符串，用于调试。
      * @return string
      */
-    public function getSql() {
+    public function getSql()
+    {
         return $this->sql;
     }
 
@@ -906,7 +956,8 @@ class DB {
      *
      * @return void
      */
-    public function getActualSql() {
+    public function getActualSql()
+    {
         return $this->actualSql;
     }
 
@@ -917,7 +968,8 @@ class DB {
      *
      * @return string debug 信息
      */
-    public function getDebugInfo() {
+    public function getDebugInfo()
+    {
         if (null === $this->sth()) {
             return "请先调用执行方法，如insert()、update()、delete()或查询类方法。";
         }
@@ -934,7 +986,8 @@ class DB {
      * 启动事务
      * @return bool
      */
-    public function beginTransaction() {
+    public function beginTransaction()
+    {
         return $this->dbh()->beginTransaction();
     }
 
@@ -942,7 +995,8 @@ class DB {
      * 提交事务
      * @return bool
      */
-    public function commit() {
+    public function commit()
+    {
         return $this->dbh()->commit();
     }
 
@@ -950,7 +1004,8 @@ class DB {
      * 回滚事务
      * @return bool
      */
-    public function rollBack() {
+    public function rollBack()
+    {
         return $this->dbh()->rollBack();
     }
 
@@ -959,7 +1014,8 @@ class DB {
      * @param String $sql 要执行的 SQL
      * @return Integer
      */
-    public function exec($sql) {
+    public function exec($sql)
+    {
         $this->sql = $sql;
         return $this->dbh()->exec($sql);
     }
@@ -969,7 +1025,8 @@ class DB {
      * @param String $sql
      * @return PDOStatement
      */
-    public function query($sql) {
+    public function query($sql)
+    {
         $this->sql = $sql;
         $res = $this->dbh()->query($sql);
         if (!$res) {
@@ -985,7 +1042,8 @@ class DB {
      * 获取最后插入的数据的id
      * @return String 最后插入数据有id
      */
-    public function getLastInsertId() {
+    public function getLastInsertId()
+    {
         return $this->dbh()->lastInsertId();
     }
 
@@ -994,7 +1052,8 @@ class DB {
      *
      * @return void
      */
-    private function catchError() {
+    private function catchError()
+    {
         self::$lastError = [
             'errorCode' => $this->sth()->errorCode(),
             'errorInfo' => $this->sth()->errorInfo()
@@ -1006,7 +1065,8 @@ class DB {
      * 获取 SQL 执行错误
      * @return array
      */
-    public function getError() {
+    public function getError()
+    {
         return $this->error;
     }
 
@@ -1015,7 +1075,8 @@ class DB {
      * 
      * @return null|array
      */
-    public static function getLastError() {
+    public static function getLastError()
+    {
         return self::$lastError;
     }
 }

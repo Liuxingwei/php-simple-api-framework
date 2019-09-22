@@ -240,9 +240,20 @@ class Index extends AbstractBaeApi
 
 的`json`返回。
 
-### 命名空间
+### 命名空间与`uri`的关系
 
 `API`类遵循`psr4`标准，其命名空间`Application\Api`映射于项目根目录中的`application/Api`目录。
+
+`API`类名与`API`的`uri`之间的关系是，将类的命名空间中的`Application\Api`部分去除，并将`\`转换为`/`，就是该`API`的`uri`。
+
+例如类`Application\Api\Example\Index`对应的`API`的`uri`即为`/example/index`。
+
+由于`HTTP`定义的`url`对于大小写不敏感，在转换为类名时，会自动将每部分的首字母转换为大写，并将下划线及其后的一个字母转换为大写字母，以对应命名空间和中的大写字母。
+
+```text
+/example/index        =>    Application\Api\Example\Index
+/user_info/get_list   =>    Application\Api\UserInfo\GetList
+```
 
 ### `responseJson()`方法
 
@@ -400,3 +411,61 @@ abstract public class AbstractExampleBaseApi
 ## `DB`和`Model`
 
 框架实现了一个基于`PDO`的`DB`类，具体使用请参考`doc`目录的`DB-Class-Usage.md`文件。
+
+也可以自定义`Model`类，直接继承`DB`类，建议将`Model`类定义在`application\Model`命名空间中，可以不用修改`composer.json`的自动加载定义。
+
+```PHP
+// application/Model/User.php
+namespace Application\Model;
+
+use Lib\Core\DB;
+
+class User
+{
+  public function checkUser($userName, $password)
+  {
+    return $this->where('user_name = :user_name AND password = :password', [':user_name' => $userName, ':password' => $password])->selectOne();
+  }
+}
+```
+
+上例中，是假定表名与类名相同，都是`user`（在MySQL中不区分大小写）。
+
+如果实际的表名与类名不同，则需要使用`$table`属性自定义表名：
+
+```PHP
+// application/Model/UserInfo.php
+namespace Application\Model;
+
+use Lib\Core\DB;
+
+class UserInfo
+{
+  protected $table = 'user_info';
+  public function checkUser($userName, $password)
+  {
+    return $this->where('user_name = :user_name AND password = :password', [':user_name' => $userName, ':password' => $password])->selectOne();
+  }
+}
+```
+
+框架也会用类似于`uri`转换`API`类名的方式，将类名定义中的大写字母转换「下划线加小写」字母的形式。
+
+注意不要在`MySQL`中用驼峰法命名表名，而要用下划线命名法。
+
+上例也可以省略表名的显式定义：
+
+```PHP
+// application/Model/UserInfo.php
+namespace Application\Model;
+
+use Lib\Core\DB;
+
+class UserInfo
+{
+  public function checkUser($userName, $password)
+  {
+    return $this->where('user_name = :user_name AND password = :password', [':user_name' => $userName, ':password' => $password])->selectOne();
+  }
+}
+```
