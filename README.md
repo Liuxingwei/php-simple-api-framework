@@ -169,7 +169,6 @@ Please access detail API.
 + lib
   + Core
     - AbstractBaseApi.php
-    - BaseApiInterFace.php
     - bootstrap.php
     - DB.php
     - ErrorCode.php
