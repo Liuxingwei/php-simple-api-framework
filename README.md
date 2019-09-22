@@ -161,8 +161,9 @@ Please access detail API.
 
 ```Shell
 + application
-  + Example
-    - Index.php
+  + Api
+    + Example
+      - Index.php
 + conf
   - config.php.sample
 + lib
