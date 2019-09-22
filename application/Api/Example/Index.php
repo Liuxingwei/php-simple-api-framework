@@ -1,10 +1,10 @@
 <?php
-namespace Application\Example;
+namespace Application\Api\Example;
 
 use Lib\Core\AbstractBaseApi;
 use Lib\Core\ErrorCode;
 
-class Index extends AbstractBaseApi
+abstract class Index extends AbstractBaseApi
 {
     protected $httpMethod = 'GET';
     public function run() {

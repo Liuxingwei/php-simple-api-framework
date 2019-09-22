@@ -18,8 +18,7 @@
     "autoload": {
         "psr-4": {
             "Lib\\": "lib",
-            "Application\\": "application",
-            "Model\\": "model"
+            "Application\\": "application"
         }
     }
 }

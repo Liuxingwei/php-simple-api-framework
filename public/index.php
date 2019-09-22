@@ -15,10 +15,10 @@ $scriptArray = explode('/', $scriptPath);
 foreach ($scriptArray as $key => $value) {
     $scriptArray[$key] = ucfirst($value);
 }
-$className = preg_replace_callback('|_(.)|', static function ($match) {
+$className = '\\Application\\Api' . preg_replace_callback('|_(.)|', static function ($match) {
     return strtoupper($match[1]);
 }, implode('\\', $scriptArray));
-if (!class_exists($className)) {
+if (!class_exists($className) || (new ReflectionClass($className))->isAbstract()) {
     SafException::throw(ErrorCode::mapError(ErrorCode::API_NOT_EXISTS, ['api' => $scriptPath]));
 }
 $instance = new $className;

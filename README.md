@@ -17,6 +17,8 @@
 
 `SAF`也没有`Beautiful URL`路由，`GET`请求的参数是通过形如`name=zhangsan&sex=male`的`QueryString`参数传递的。
 
+`SAF`遵循了惯例优于配置的理念，`API`必须放在指定的目录（项目目录的`Application\Api`）下。
+
 数据库方面，`SAF`有一个简单的`DB`类，它是以`PDO`为底层的，理论上它可以支持多种数据库服务，但是目前只在`MySQL`上做过测试。因此最适合的数据库搭配就是`MySQL5.7+`。
 
 对于`PHP`，由于`7.2.*`和其前的版本，在`trait`特性支持上有缺陷（引用继承了同一`trait`的多个`trait`时，会导致重复定义方法的致命错误），因此建议`PHP 7.3+`。
@@ -198,7 +200,7 @@ Please access detail API.
 
 ## 五、创建`API`
 
-在`Application`中根据业务需要创建一个子文件夹（也可以是多级文件夹），在其中创建一个`API`类。
+在`Application\Api`中根据业务需要创建一个子文件夹（也可以是多级文件夹），在其中创建一个`API`类。
 
 该类继承`Lib\Core\AbstractBaseApi`类，并实现`run()`方法。
 
@@ -208,7 +210,7 @@ Please access detail API.
 
 ```PHP
 <?php
-namespace Application\Example;
+namespace Application\Api\Example;
 
 use Lib\Core\AbstractBaseApi;
 
@@ -227,7 +229,7 @@ class Index extends AbstractBaeApi
 }
 ```
 
-此时，向服务器的`/application/example/index`发出`GET`请求，即可收到值为
+此时，向服务器的`/example/index`发出`GET`请求，即可收到值为
 
 ```Javascript
 {
@@ -238,3 +240,163 @@ class Index extends AbstractBaeApi
 
 的`json`返回。
 
+### 命名空间
+
+`API`类遵循`psr4`标准，其命名空间`Application\Api`映射于项目根目录中的`application/Api`目录。
+
+### `responseJson()`方法
+
+`AbstractBaseApi`类的`responseJson()`方法用于以`json`格式输出数据。
+
+它接受两个参数，第一个参数是要输出的数据，建议以
+
+```PHP
+[
+  'code' => xxxx,
+  'message' => 'xxxxxxxxxxx'
+  'data' => [
+    ...
+  ]
+]
+```
+
+的格式定义输出数据。
+
+第二个参数是`HTTP`状态码，可以是`404`、`403`、`500`、`200`等值。此参数可以省略，默认值为`200`。
+
+### `ErrorCode`类
+
+可以将返回的基本结构以类常量的形式定义在`ErrorCode`类中。
+
+`ErrorCode`类里已有了几个预定义的类常量，比如：
+
+```PHP
+const OK = ['code' => 200, 'message' => 'OK'];
+const API_NOT_EXISTS = ['code' => 404, 'message' => 'API {{:api}} 不存在'];
+const HTTP_METHOD_ERROR = ['code' => 500, 'message' => '仅支持 POST 和 GET 提交'];
+```
+
+可以这样改写`Example\Index`：
+
+```PHP
+<?php
+namespace Application\Api\Example;
+
+use Lib\Core\AbstractBaseApi;
+use Lib\Core\ErrorCode;
+
+class Index extends AbstractBaeApi
+{
+  protected $httpMethod = 'GET';
+
+  public function run()
+  {
+    $this->responseJson(ErrorCode::OK);
+  }
+}
+```
+
+`API_NOT_EXISTS`常量使用了占位符，占位符被包含在`{{:`和`}}`之间。可以使用数组指定要替换的与数组键匹配的值。
+
+例如，定义如下常量：
+
+```PHP
+const PARAM_NOT_EXISTS = ['code' => 403, 'message' => '参数 {{:param}} 的长度必须在 {{:min}} 到 {{:max}} 之间'];
+```
+
+然后在`Api`的`run()`方法中这样使用：
+
+```PHP
+$err = ErrorCode::mapError(ErrorCode::PARAM_NOT_EXISTS, ['param' => 'username', 'min' => 3, 'max' => 16]);
+// 最终的输出结果为：
+// {
+//   "code": 403,
+//   "message": "参数 username 的长度必须在 3 到 16 之间"
+// }
+```
+
+### 结束执行
+
+框架最后调用`API`代码就是`run()`方法，因此该方法执行的最后一行代码就标志了`API`的执行结束。
+
+下面的代码示例了在不同条件下的不同输出并结束`API`的执行：
+
+```PHP
+public function run()
+{
+  if ($signinSuccess) {
+    $this->responseJson([
+      'code' => 200,
+      'message' => '登录成功',
+    ]);
+    return true;
+  }
+  $this->responseJson([
+    'code' => 200,
+    'message' => '登录失败',
+  ]);
+}
+```
+
+如果认为登录失败是一种错误，也可以在输出时指定`HTTP`错误码：
+
+```PHP
+public function run()
+{
+  if ($signinSuccess) {
+    $this->responseJson([
+      'code' => 200,
+      'message' => '登录成功',
+    ]);
+    return true;
+  }
+  $this->responseJson([
+    'code' => 403,
+    'message' => '登录失败',
+  ], 403);
+}
+```
+
+如果定义的`code`和`HTTP`错误码相同，还可以使用`SafException`类的`throw`静态方法抛异常：
+
+```PHP
+public function run()
+{
+  if (!$signinSuccess) {
+    SafException::throw([
+      'code' => 403,
+      'message' => '登录失败',
+    ])
+  }
+  $this->responseJson([
+    'code' => 200,
+    'message' => '登录成功',
+  ]);
+}
+```
+
+这两段代码的输出是一样的。
+
+### `AbstractBaseApi`类的继承和初始化
+
+有时候，可能某些模块的`API`会有共同的特性，这时，可以定义一个继承`AbstractBaseApi`的类，在其中定义共有特性，供这些`API`类继承。
+
+这些父类可以定义在`application`的其他目录，也可以放在`application\Api`目录的子目录中。不过放在`Api`目录（或其子目录）时，最好将其定义为`抽象类`，以免被当做普通`API`调用。
+
+有些模块会有共通的初始化行为，可以将其定义在`init()`方法中，这个方法是定义在`AbstractBaseApi`类中的，它会在`API`类实例化时被自动调用。在定义`init()`方法时，应该在其第一行调用父类的`init()`，以实现父类中定义的初始化行为（除非你有意要跳过父类的初始化）。
+
+```PHP
+namespace Application\Api\Example;
+abstract public class AbstractExampleBaseApi
+{
+  protected function init()
+  {
+    parent::init();
+    ......
+  }
+}
+```
+
+## `DB`和`Model`
+
+框架实现了一个基于`PDO`的`DB`类，具体使用请参考`doc`目录的`DB-Class-Usage.md`文件。
