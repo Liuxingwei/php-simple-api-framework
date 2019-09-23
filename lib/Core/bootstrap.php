@@ -12,23 +12,21 @@ if (isset($_ENV['config']['runtime']) && $_ENV['config']['runtime'] != 'product'
     header('Access-Control-Allow-Headers: x-requested-with, content-type, key, debug');
     header('Access-Control-Allow-Credentials: true');
 }
-if (!isset($_ENV['config']['runtime']) || 'debug' != $_ENV['config']['runtime']) {
-    set_error_handler(function ($errno, $errstr, $errfile, $errline) {
-        throw new ErrorException($errstr, 500, $errno, $errfile, $errline);
-    });
-    set_exception_handler(function (Throwable $ex) {
-        header('Content-type: application/json; charset=UTF-8');
-        $response = [
-            'code' => $ex->getCode(),
-            'message' => $ex->getMessage(),
-            'debug' => [
-                'exception' => [
-                    'file' => $ex->getFile(),
-                    'line' => $ex->getLine(),
-                    'trace' => $ex->getTrace(),
-                ],
+set_error_handler(function ($errno, $errstr, $errfile, $errline) {
+    throw new ErrorException($errstr, 500, $errno, $errfile, $errline);
+});
+set_exception_handler(function (Throwable $ex) {
+    header('Content-type: application/json; charset=UTF-8');
+    $response = [
+        'code' => $ex->getCode(),
+        'message' => $ex->getMessage(),
+        'debug' => [
+            'exception' => [
+                'file' => $ex->getFile(),
+                'line' => $ex->getLine(),
+                'trace' => $ex->getTrace(),
             ],
-        ];
-        \Lib\Core\Response::json($response, $ex->getCode());
-    });
-}
+        ],
+    ];
+    \Lib\Core\Response::json($response, $ex->getCode());
+});
