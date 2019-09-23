@@ -26,8 +26,8 @@ if (!isset($_ENV['config']['runtime']) || 'debug' != $_ENV['config']['runtime'])
                     'file' => $ex->getFile(),
                     'line' => $ex->getLine(),
                     'trace' => $ex->getTrace(),
-                ]
-            ]
+                ],
+            ],
         ];
         \Lib\Core\Response::json($response, $ex->getCode());
     });

@@ -2,26 +2,26 @@
 
 ## 一、`DB`类实例的命名空间
 
-`DB`类实例的命名空间为`\Lib\DB`，在使用`DB`类之前，要在`PHP`文件的开头用`use`指令声明，格式如下：
+`DB`类实例的命名空间为`\Lib\Core\DB`，在使用`DB`类之前，要在`PHP`文件的开头用`use`指令声明，格式如下：
 
 ```PHP
-use Lib\DB;
+use Lib\Core\DB;
 $db = new DB($dbConfig);
 ```
 
 ```PHP
-use Lib\DB;
+use Lib\Core\DB;
 $db = DB::getInstance($dbConfig);
 ```
 
 或者用类的全名引用`DB`类：
 
 ```PHP
-$db = new \Lib\DB($dbConfig);
+$db = new \Lib\Core\DB($dbConfig);
 ```
 
 ```PHP
-$db = \Lib\DB::getInstance($dbConfig);
+$db = \Lib\Core\DB::getInstance($dbConfig);
 ```
 
 ## 二、创建`DB`类实例
