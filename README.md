@@ -176,7 +176,6 @@ Please access detail API.
     - SafException.php
 + doc
   - DB-Class-Usage.md
-+ model
 + public
   - .htaccess
   - index.html
