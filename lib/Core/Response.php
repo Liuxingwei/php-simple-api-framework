@@ -1,12 +1,22 @@
 <?php
+
 namespace Lib\Core;
 
 class Response
 {
-    public static function json($result, $status = 200) {
+    public static function json($result, $status = 200)
+    {
         $result = self::handlerDebugInfo($result);
         header('Content-type: application/json; charset=UTF-8', true, $status);
-        echo json_encode($result, JSON_UNESCAPED_UNICODE);
+        $res = json_encode($result, JSON_UNESCAPED_UNICODE);
+        if (json_last_error() === JSON_ERROR_UTF8) {
+            $result['message'] = iconv('GBK', 'UTF-8', $result['message']);
+            $res = json_encode($result, JSON_UNESCAPED_UNICODE);
+        }
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            $res = json_encode(['code' => 500, 'message' => 'json 解析失败：' . json_last_error()], JSON_UNESCAPED_UNICODE);
+        }
+        echo $res;
     }
 
     /**
