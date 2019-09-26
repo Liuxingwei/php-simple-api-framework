@@ -70,7 +70,7 @@ set_exception_handler(function (Throwable $ex) {
         "504",
         "505"
     ];
-    if (in_array($ex->getCode(), $httpCodes)) {
+    if (is_a($ex, '\Lib\Core\SafException') && in_array($ex->getCode(), $httpCodes)) {
         $httpCode = $ex->getCode();
     } else {
         $httpCode = 500;
