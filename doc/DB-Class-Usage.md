@@ -418,7 +418,7 @@ if (true == $res) {
 
 ```
 
-需要使用全等判断来确定插入是否失败（为确保正确判断，请一直使用此方式做验证）：
+需要根据全等判断或是否有错误产生来确定插入是否失败（为确保正确判断，请一直使用此方式做验证）：
 
 ```PHP
 $res = $db->table('user')->insert(['user_name' => 'liwei']);
@@ -426,6 +426,13 @@ if (false === $res) {
     echo '插入失败';
 }
 if (false !== $res) {
+    echo '插入成功';
+}
+
+//----------
+if ($db->getError() !== null) {
+    echo '插入失败';
+} else {
     echo '插入成功';
 }
 ```
@@ -451,7 +458,7 @@ $userId = $db->getLastInsertId();
 
 删除失败返回`false`，删除成功返回删除的行数。
 
-需要注意的是，**如果没有符合删除条件的记录，该方法返回`0`,这种情况不属于执行失败。** 因此不能用如下方式做判断：
+需要注意的是，基于`MySQL`底层的实现，**如果没有符合删除条件的记录，该方法返回`false`,这种情况不属于执行失败。** 因此不能用如下方式做判断：
 
 ```PHP
 $res = $db->where('user')->where('id = :id', [':id' => 9])->delete();
@@ -470,14 +477,13 @@ if (true == $res) {
 
 ```
 
-需要使用全等判断来确定删除是否失败（为确保正确判断，请一直使用此方式做验证）：
+需要根据是否产生错误来确定删除是否失败（为确保正确判断，请一直使用此方式做验证）：
 
 ```PHP
 $res = $db->where('user')->where('id = :id', [':id' => 9])->delete();
-if (false === $res) {
+if (null !== $db->getError()) {
     echo '删除失败';
-}
-if (false !== $res) {
+} else {
     echo '删除成功';
 }
 ```
@@ -532,6 +538,16 @@ $db->table('product')->update(['amount' => 'price * number']);
 $db->table('procuet')->update('amount = price * number);
 // 正确，语句被解析为 UPDATE product SET amount = price * number
 ```
+
+基于`MySQL`底层的实现，`update()`方法在更新了`0`条和更新出错时均返回`false`，因此**不能根据其返回值判断是否更新出错，需要根据是否产生错误来做判断**：
+
+```PHP
+$db->table('user')->where('id = :id', [':id' => 9])->update('age = age + 1');
+if (null !== $db->getError()) {
+    echo '更新失败';
+} else {
+    echo '更新成功';
+}
 
 ### 5. select()
 
