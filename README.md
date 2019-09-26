@@ -155,6 +155,41 @@ Please access detail API.
 Please access detail API.
 ```
 
+### 4. nginx
+
+添加一个`server`配置：
+
+```SHELL
+server {
+        listen xxxx default_server;
+        listen [::]:xxxx default_server;
+
+        server_name _;
+
+        location / {
+                try_files $uri $uri/ =404;
+                if (!-e $request_filename) {
+                    rewrite  ^(.*)$  /index.php$1  last;
+                }
+        }
+
+        location ~ \.php(.*)$ {
+                include snippets/fastcgi-php.conf;
+                fastcgi_split_path_info ^(.+\.php)(/.*)$;
+                # With php-fpm (or other unix sockets):
+                fastcgi_pass unix:/var/run/php/php7.3-fpm.sock;
+                # With php-cgi (or other tcp sockets):
+                # fastcgi_pass 127.0.0.1:9000;
+        }
+
+        location ~ /\.ht {
+                deny all;
+        }
+}
+```
+
+重启`nginx`。
+
 ## 四、目录结构
 
 初始的项目目录结构如下：
