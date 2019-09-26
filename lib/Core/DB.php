@@ -432,10 +432,22 @@ class DB
      */
     private function mapParams($string, $params)
     {
+        if (!is_numeric(array_key_first($params))) {
+            uksort($params, function ($prev, $next) {
+                $prevLen = mb_strlen($prev);
+                $nextLen = mb_strlen($next);
+                if ($prevLen > $nextLen) {
+                    return -1;
+                } else if ($prevLen < $nextLen) {
+                    return 1;
+                }
+                return 0;
+            });
+        }
         foreach ($params as $key => $value) {
             $replaceValue = "'" . $value . "'";
             $count = 1;
-            if (\is_numeric($key)) {
+            if (is_numeric($key)) {
                 $string = str_replace('?', $replaceValue, $string, $count);
             } else {
                 $string = str_replace($key, $replaceValue, $string, $count);
@@ -532,7 +544,7 @@ class DB
      */
     public function update($vals)
     {
-        $this->sql = "UPDATE " . $this->table . " SET";
+        $this->sql = "UPDATE " . $this->table . " SET ";
         if (is_array($vals)) {
             $replaces = array();
             $this->updateParams = array();
