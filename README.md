@@ -166,6 +166,8 @@ server {
 
         server_name _;
 
+        root safpath/public;
+
         location / {
                 try_files $uri $uri/ =404;
                 if (!-e $request_filename) {
