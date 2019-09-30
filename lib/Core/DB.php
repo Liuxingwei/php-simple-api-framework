@@ -33,19 +33,19 @@ class DB
 
     /**
      * 查询结果要返回的字段，与 Select 语句中的 fields 段对应，格式为用逗号间隔的字符串，可以使用 × 通配符。
-     * @var String
+     * @var string
      */
     protected $fields;
 
     /**
      * 排序，与 order by 子句对应
-     * @var String
+     * @var string
      */
     protected $order;
 
     /**
      * 条件，与 where 子句对应
-     * @var String
+     * @var string
      */
     protected $where;
 
@@ -58,19 +58,19 @@ class DB
 
     /**
      * 表名, 在查询语句中，可以是逗号间隔的多个表名
-     * @var String
+     * @var string
      */
     protected $table;
 
     /**
      * join 子句
-     * @var String
+     * @var string
      */
     protected $join;
 
     /**
      * 拼接完成的 SQL 语句
-     * @var String
+     * @var string
      */
     protected $sql;
 
@@ -107,37 +107,37 @@ class DB
 
     /**
      * 查询到的结果总数
-     * @var Integer
+     * @var integer
      */
     protected $count;
 
     /**
      * 分页时每页的条数，默认为20
-     * @var Integer
+     * @var integer
      */
     protected $pageSize = 20;
 
     /**
      * 当前页数
-     * @var Integer
+     * @var integer
      */
     protected $page;
 
     /**
      * 查询结果总页数
-     * @var Integer
+     * @var integer
      */
     protected $totalPages;
 
     /**
      * 分组，相当于 Select 语句的 group by 子句
-     * @var String
+     * @var string
      */
     protected $group;
 
     /**
      * 聚合筛选，相当于 Select 语句的 having 子名
-     * 
+     *
      * @var string
      */
     protected $having;
@@ -155,6 +155,13 @@ class DB
      * @var array
      */
     private $error;
+
+    /**
+     * 获取数据时的 fetch 模式
+     *
+     * @var integer|null
+     */
+    private $fetchMode = null;
 
     /**
      * 初始化DB库
@@ -202,7 +209,7 @@ class DB
 
     /**
      * 初始化DB库
-     * 
+     *
      * 参数说明及示例：
      *   $dbConfig 参数为数组，数组各项对应了初始化 PDO 时需要的 dsn 信息项，示例如下：
      *   $config = [
@@ -245,9 +252,42 @@ class DB
         }
         $this->dbh = DB::$connections[$key];
 
+        $this->dbh->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
+
         if ('Lib\DB' !== ($className = get_class($this)) && is_null($this->table)) {
             $this->table($this->className2TableName($className));
         }
+    }
+
+    /**
+     * 设置 fetch 模式
+     *
+     * @param integer $fetchMode
+     * @return void
+     */
+    public function setFetchMode($fetchMode)
+    {
+        $this->fetchMode = $fetchMode;
+    }
+
+    /**
+     * 获取 fetch 模式
+     * 如果传递参数不为 null，返回传入值；
+     * 如果传递的参数为 null，但 $this->fetchMode 不为 null，返回 $this->fetchMode;
+     * 如果 $this->fetchMode 也为 null，返回 $this->dbh 对象的 PDO::ATTR_DEFAULT_FETCH_MODE
+     *
+     * @param integer $fetchMode
+     * @return integer
+     */
+    protected function getFetchMode($fetchMode = null)
+    {
+        if (null !== $fetchMode) {
+            return $fetchMode;
+        }
+        if (null !== $this->fetchMode) {
+            return $this->fetchMode;
+        }
+        return $this->dbh()->getAttribute(PDO::ATTR_DEFAULT_FETCH_MODE);
     }
 
     public function className2TableName($className)
@@ -324,13 +364,13 @@ class DB
 
     /**
      * 获取 DB 类中实际使用的 PDO 对象，在某些特殊情况下，可以直接使用该对象（不推荐）
-     * 
+     *
      * 示例：
      *   $pdo = $db->dbh();
      *   $pdo->exec($sql);
      * 或者
      *   $db->dbh()->exec($sql)
-     * 
+     *
      * @deprecated
      * @return PDO
      */
@@ -340,9 +380,9 @@ class DB
     }
 
     /**
-     * 返回经 prepare 后的 PDOStatement 对象 
+     * 返回经 prepare 后的 PDOStatement 对象
      * 可以利用此对象，使用不同的参数调用同一预处理后的语句，提高 SQL 效率。
-     * 
+     *
      * @return PDOStatement
      */
     public function sth()
@@ -355,20 +395,20 @@ class DB
      * 参数说明及示例：
      *   $fields 参数为字符串类型，与 SELECT 语句的返回列（字段）部分对应，为以逗号间隔的列（字段）名。
      *   例如：$db->fields('id, name, age');
-     * 
+     *
      *   可以使用通配符。
      *   例如：$db->fields('a.*, b.id, c.name');
-     * 
+     *
      *   可以为列（字段）指定别名。
      *   例如：$db->fields('old_record_number orn, new_record_number nrn');
-     * 
+     *
      *   可以为列（字段）指定表名、数据库名前缀。
      *   例如：$db->fields('org.user.name oun, org.user.age oua');
-     * 
+     *
      *   如果列（字段）或其前缀的库、表名与 MySQL关键字冲突，需要人为使用使用 “`”（PC键盘数字键前的字符，不是单引号）挺住：
      *   例如：$db->fields('`order`.`key` order_key, `order`.`show` order_show');
-     * 
-     * @param String $field 查询语句要返回的列（字段）
+     *
+     * @param string $field 查询语句要返回的列（字段）
      * @return DB 返回当前类实例对象，可以用于链式操作
      */
     public function fields($fields)
@@ -384,7 +424,7 @@ class DB
      *   可以为列（字段）指定表名、数据库名前缀
      *   如果列（字段）或其前缀的库、表名与 MySQL关键字冲突，需要人为使用使用 “`”（PC键盘数字键前的字符，不是单引号）挺住。
      *   示例：$db->order('`order`.`id` DESC, user.username');
-     * @param String $order 排序字符串
+     * @param string $order 排序字符串
      * @return DB 返回当前类实例对象，可以用于链式操作
      */
     public function order($order)
@@ -401,15 +441,15 @@ class DB
      *   与 WHERE 子名不同的是，$where 可以使用占位符。
      *   占位符分为两种： ? 点位符和由 : 开头的具名占位符。
      *   当使用占位符时，须使用 $params 参数为占位符提供具体的值。
-     *   
+     *
      *   对于 ? 占位符，$params 为数值索引数组，按索引次序依次替换占位符。
      *   示例：$db->where('creator_id = ? and status = ?', [6, 2]); 对应的实际查询条件为 creator_id = 3 and status = 2
-     *   
+     *
      *   对于具名占位符，$params 为关联数组，按数组元素的键替换相应占位符。(注意，具名占位符必须以 ： 开头)
      *   示例：$db->where('creator_id = :userid and status = :status', [':status' => 2, ':userid' => 3]); 对应的实际查询条件为 creator_id = 3 and status = 2
-     * @param $where String 条件字符串，可以包含占位符
+     * @param $where string 条件字符串，可以包含占位符
      * @param $params array 如果 $where 使用了占位符，$params 参数即为实际值。如果 $where 没有使用占位符，此参数可省略。
-     * @return DB 返回当前类实例对象，可以用于链式操作 
+     * @return DB 返回当前类实例对象，可以用于链式操作
      */
     public function where($where, $params = [])
     {
@@ -425,7 +465,7 @@ class DB
 
     /**
      * 匹配 SQL 中的参数，生成匹配后的 SQL
-     * 
+     *
      * @param string $string 要匹配的字符串
      * @param array $params 匹配入字符串中的参数数组
      * @return string 匹配后的 SQL
@@ -461,7 +501,7 @@ class DB
      * 参数说明与示例：
      *   $table 参数为表名字符串，与 SQL 中的表名部分对应，语法也相同。
      *   示例：$db->table('user, userinfo, `order`');
-     * @param  String $table 表名列表与 SQL 中的表名部分对应，语法也相同。
+     * @param  string $table 表名列表与 SQL 中的表名部分对应，语法也相同。
 
      * @return DB 返回当前类实例对象，可以用于链式操作
      */
@@ -472,16 +512,16 @@ class DB
     }
 
 
-    /** 
-     * 指定表间关联 
+    /**
+     * 指定表间关联
      *
      * 参数说明与示例：
      *   $join 参数与 SELECT 语句中 JOIN 子句对应，语法也相同。
      *   由于连接有多种模式（内联，左联，右联），本方法无法预先确定使用的是哪种联接方式，只能人为指定，且多表连接时 join ... on ... 需要在语句中多次指定。
      *   因此与 DB 类中其他设置方法不同，join 方法的参数需要带有 [inner/left/right] join 和 on 关键字。（其它方法不需要带 where/order by/group by 等关键字）
      *   示例：$db->join('LEFT JOIN `order` ON `order`.`userid` = `user`.`id` JOIN `user_info` ON `user`.`id` = `userinfo`.`userid`);
-     * 
-     * @param  String $join
+     *
+     * @param  string $join
      * @return DB 返回当前类实例对象，可以用于链式操作
      */
     public function join($join)
@@ -500,7 +540,7 @@ class DB
      *     因此不能使用 if ($db->insert(....)) 或 false == $db->insert(...) 判断插入动作是否成功。
      *     在 PHP 中 0 是假值，仅在严格相等判断时，才与 false 有区别，要用 false === $db->insert(...) 作判断。
      * @param array 要插入数据的 map 数组（关联数组），键对应要插入的字段，值对应该字段要插入的值。
-     * @return Boolean|Integer 如果插入失败，返回 false。插入成功，或者返回新插入行的自增主键（有自增主键），或者返回 0 （无自增主键）。
+     * @return Boolean|integer 如果插入失败，返回 false。插入成功，或者返回新插入行的自增主键（有自增主键），或者返回 0 （无自增主键）。
      */
     public function insert($vals)
     {
@@ -540,7 +580,7 @@ class DB
      *       如若区别对待，不能直接用 if ($db->update(....)) 或 false == $db->update(...) 进行判断。
      *       因为 PHP 中 0 是假值，仅在严格相等判断时，才与 false 有区别，要用 false === $db->update(...) 作判断。
      * @param array $vals 要更新的字段和值构成的关联数组，其中键为字段名，值为更新后的值
-     * @return Boolean|Integer 更新失败返回 false，成功返回影响行数。
+     * @return Boolean|integer 更新失败返回 false，成功返回影响行数。
      */
     public function update($vals)
     {
@@ -614,10 +654,11 @@ class DB
      * selectOne() 方法没有参数，查询条件来自于 where() 方法。
      * 示例：$db->table('user')->where('id = :userid', [':userid' => $userid])->selectOne();
      * 返回一个索引为结果集列名和以0开始的列号的数组，例如仅查询一个 username 字段，结果为 [0 => 'xxx', 'username' => 'xxx']
-     * 
+     *
+     * @param null|int $fetchMode
      * @return array 一个索引为结果集列名和以0开始的列号的数组
      */
-    public function selectOne()
+    public function selectOne($fetchMode = null)
     {
         if (is_null($this->fields)) {
             $this->fields = '*';
@@ -632,17 +673,18 @@ class DB
             $this->catchError();
             return false;
         }
-        return $this->sth()->fetch();
+        return $this->sth()->fetch($this->getFetchMode($fetchMode));
     }
 
     /**
      * 获取结果集
      * select() 方法没有参数，查询条件来自于 where() 方法。
      * 示例：$db->table('user')->where('status = :status', [':status' => 'DISABLED'])->select();
-     * 
+     *
+     * @param null|int $fetchMode
      * @return array 返回一个包含结果集中所有符合条件行的数组。该数组的每一行为一个索引为列名和以0开始的列号的数组。
      */
-    public function select()
+    public function select($fetchMode = null)
     {
         if (is_null($this->fields)) {
             $this->fields = '*';
@@ -662,7 +704,7 @@ class DB
             $this->catchError();
             return false;
         }
-        return $this->sth()->fetchAll();
+        return $this->sth()->fetchAll($this->getFetchMode($fetchMode));
     }
 
     /**
@@ -681,7 +723,7 @@ class DB
      *   要获取的列在 fields() 方法中指定的列中的序号，从 0 开始计，例如：
      *   $db->table('user')->fields('id, username, age')->selectColumn(1);
      *   获取的即是 username。
-     * @param Integer $index 要获取的列在 fields() 方法中指定的列中的序号，从 0 开始计
+     * @param integer $index 要获取的列在 fields() 方法中指定的列中的序号，从 0 开始计
      * @return Mixted 返回值类型与列类型相关
      */
     public function selectColumn($index)
@@ -719,13 +761,13 @@ class DB
      * 示例：
      *   分页查询用户列表，每面15条，查询第3页
      *   $db->table('user')->setPageSize(15)->selectPage(3);
-     * @param Integer $page 要获取的数据的页码
+     * @param integer $page 要获取的数据的页码
      * @return array 返回一个包含结果集中所有符合条件行的数组。该数组的每一行为一个索引为列名和以0开始的列号的数组。
      */
-    public function selectPage($page = 1)
+    public function selectPage($page = 1, $fetchMode = null)
     {
         $this->page = $page;
-        $res = $this->select();
+        $res = $this->select($fetchMode);
         $this->count();
         $this->calcPages();
         return $res;
@@ -736,7 +778,7 @@ class DB
      * 示例：
      *   计算状态为可用的用户的总数
      *   $db->table('user')->where("status = 'ENABLED'")->count();
-     * @return Integer 结果集总行数
+     * @return integer 结果集总行数
      */
     public function count()
     {
@@ -761,7 +803,7 @@ class DB
      * 示例：
      *   计算状态为可用的用户列表总页数，按每页15行计算
      *   $db->table('user')->where("status = 'ENABLED'")->setPageSize(15)->calcPages();
-     * @return Integer 符合条件的用户列表总页数
+     * @return integer 符合条件的用户列表总页数
      */
     public function calcPages()
     {
@@ -775,7 +817,7 @@ class DB
      *   如果已经使用 calcPages() 方法或 selectPage() 方法，可以直接使用 totalPages() 方法获取总页数。
      *   $db->table('user')->where("status = 'ENABLED'")->setPageSize(15)->selectPage(3);
      *   $db->totalPages();
-     * @return Integer 总页数
+     * @return integer 总页数
      */
     public function totalPages()
     {
@@ -787,7 +829,7 @@ class DB
      * 示例：
      *   $db->table('user')->where("status = 'ENABLED'")->setPageSize(15)->selectPage(3);
      *   $db->page();
-     * @return Integer 当前页码
+     * @return integer 当前页码
      */
     public function page()
     {
@@ -799,7 +841,7 @@ class DB
      * 示例：
      *   $db->table('user')->where("status = 'ENABLED'")->setPageSize(15)->selectPage(3);
      *   $db->totalPages();
-     * @return Integer 结果集总行数
+     * @return integer 结果集总行数
      */
     public function totalRows()
     {
@@ -811,7 +853,7 @@ class DB
      * 示例：
      *   $db->table('user')->setPageSize(15);
      *   $db->pageSize();
-     * @return Integer 每页的行数设置
+     * @return integer 每页的行数设置
      */
     public function pageSize()
     {
@@ -824,7 +866,7 @@ class DB
      * 示例：
      *   $db->table('user')->where("status = 'ENABLED'")->setPageSize(15)->selectPage(3);
      *   $db->prev();
-     * @return Integer 前一页页码
+     * @return integer 前一页页码
      */
     public function prev()
     {
@@ -840,7 +882,7 @@ class DB
      * 示例：
      *   $db->table('user')->where("status = 'ENABLED'")->setPageSize(15)->selectPage(3);
      *   $db->next();
-     * @return Integer 后一页页码
+     * @return integer 后一页页码
      */
     public function next()
     {
@@ -860,8 +902,8 @@ class DB
      *      'currentPage' => 2, // 当前页页码
      *      'prevPage' => 1, // 上一页页码
      *      'nextPage' => 3, // 下一页页码
-     *  ] 
-     * 
+     *  ]
+     *
      * @return array 除分页数据集外的所有分页信息
      */
     public function pagerationInfo()
@@ -882,7 +924,7 @@ class DB
      *   $group 参数与 GROUP BY 子句的分组字符串部分对应，语法也一致。
      *   示例：
      *   $db->table('user')->fields('count(*) total, age')->group('age')->select();
-     * @param String $group 分组规则，与 GROUP BY 子句的分组字符串部分对应，语法相同
+     * @param string $group 分组规则，与 GROUP BY 子句的分组字符串部分对应，语法相同
      * @return DB 返回当前类实例对象，可以用于链式操作
      */
     public function group($group)
@@ -899,10 +941,10 @@ class DB
      *   与 HAVING 子名不同的是，$having 可以使用占位符。
      *   占位符分为两种： ? 点位符和由 : 开头的具名占位符。
      *   当使用占位符时，须使用 $params 参数为占位符提供具体的值。
-     *   
+     *
      *   对于 ? 占位符，$params 为数值索引数组，按索引次序依次替换占位符。
      *   示例：$db->having('avg(price) > ? and sum(amount) > ?', [100, 10000]); 对应的实际查询条件为 avg(price) > 100 and sum(amount) > 10000
-     *   
+     *
      *   对于具名占位符，$params 为关联数组，按数组元素的键替换相应占位符。(注意，具名占位符必须以 ： 开头)
      *   示例：$db->having('avg(price) > :avg and sum(amount) > :total', ['total' => 10000, 'avg' => 100]); 对应的实际查询条件为 avg(price) > 100 and sum(amount) > 10000
      * @param string $having 聚合规则，与 HAVING 子句的条件串部分对应，语法相同
@@ -1023,8 +1065,8 @@ class DB
 
     /**
      * 直接执行 SQL
-     * @param String $sql 要执行的 SQL
-     * @return Integer
+     * @param string $sql 要执行的 SQL
+     * @return integer
      */
     public function exec($sql)
     {
@@ -1034,7 +1076,7 @@ class DB
 
     /**
      * 直接执行 SQL，并返回 PDOStatement 对象
-     * @param String $sql
+     * @param string $sql
      * @return PDOStatement
      */
     public function query($sql)
@@ -1052,7 +1094,7 @@ class DB
 
     /**
      * 获取最后插入的数据的id
-     * @return String 最后插入数据有id
+     * @return string 最后插入数据有id
      */
     public function getLastInsertId()
     {
@@ -1084,7 +1126,7 @@ class DB
 
     /**
      * 获取最后一次 SQL 的错误信息
-     * 
+     *
      * @return null|array
      */
     public static function getLastError()

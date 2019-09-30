@@ -1,14 +1,12 @@
 {
     "name": "liuxingwei/simple-api-framework",
-    "version": "0.0.24",
+    "version": "0.0.25",
     "license": "MIT",
     "minimum-stability": "stable",
-    "authors": [
-        {
-            "name": "liuxingwei",
-            "email": "matchless@163.com"
-        }
-    ],
+    "authors": [{
+        "name": "liuxingwei",
+        "email": "matchless@163.com"
+    }],
     "require": {
         "php": ">=5.6.0",
         "ext-pdo": "*",
