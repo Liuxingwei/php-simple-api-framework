@@ -32,11 +32,21 @@ abstract class AbstractBaseApi
      */
     private final function mapParams()
     {
-        if ('POST' == $_SERVER['REQUEST_METHOD']) {
+        if (isset($_SERVER['CONTENT_TYPE']) && 'application/json' === $_SERVER['CONTENT_TYPE']) {
+            $this->httpParams = json_decode(file_get_contents('php://input'), true);
+        } else if ('POST' == $_SERVER['REQUEST_METHOD']) {
             $this->httpParams = $_POST;
-        } else {
+        } else if (isset($_SERVER['CONTENT_TYPE']) && 'application/x-www-form-urlencoded' === $_SERVER['CONTENT_TYPE']) {
+            $content = file_get_contents('php://input');
+            $kvString = explode('&', $content);
+            array_walk($kvString, function ($source) {
+                $kv = explode('=', $source);
+                $this->httpParams[$kv[0]] = $kv[1];
+            });
+        } else if ('GET' === $_SERVER['REQUEST_METHOD'] || 'DELETE' === $_SERVER['REQUEST_METHOD']) {
             $this->httpParams = $_GET;
         }
+        $this->httpParams['RAW'] = file_get_contents('php://input');
         return true;
     }
 

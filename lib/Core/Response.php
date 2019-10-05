@@ -47,10 +47,11 @@ class Response
         } else {
             $during = self::calcRunDuring();
             $request = [
-                'uri' => $_SERVER['REQUEST_URI'],
+                'URI' => $_SERVER['REQUEST_URI'],
                 'GET' => $_GET,
                 'POST' => $_POST,
                 'SERVER' => $_SERVER,
+                'RAW' => file_get_contents('php://input'),
             ];
             if (!isset($result['debug'])) {
                 $result['debug'] = [

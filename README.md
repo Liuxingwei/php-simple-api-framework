@@ -11,11 +11,9 @@
 
 说其极简，一方面是因为它只有`5`个核心类和几个支持文件，另一方面是因为它只支持有限的场景，当然，也是说它非常易于使用。
 
-譬如，由于`PHP`本身的限制，对于`PUT`、`DELETE`、`PATCH`等`HTTP METHOD`支持不够好，很多框架使用了模拟实现，`SAF`没有这样做，而是只支持`GET`、`POST`。
+`SAF`没有`Beautiful URL`路由，`GET`请求的参数是通过形如`name=zhangsan&sex=male`的`QueryString`参数传递的。
 
-`SAF`也没有`Beautiful URL`路由，`GET`请求的参数是通过形如`name=zhangsan&sex=male`的`QueryString`参数传递的。
-
-`SAF`遵循了惯例优于配置的理念，`API`必须放在指定的目录（项目目录的`Application\Api`）下，且`GET`请求对应的`API`类要放在`Get`子命名空间，而`POST`请求对应的`API`类要放在`Post`子命名空间。
+`SAF`遵循了惯例优于配置的理念，`API`必须放在指定的目录（项目目录的`Application\Api`）下，且`GET`请求对应的`API`类要放在`Get`子目录，而`POST`请求对应的`API`类要放在`Post`子目录，其他类型的`HTTP`请求对应的`API`，也放在与其`HTTP METHOD`相对应的子目录。
 
 数据库方面，`SAF`有一个简单的`DB`类，它是以`PDO`为底层的，理论上它可以支持多种数据库服务，但是目前只在`MySQL`上做过测试。因此最适合的数据库搭配就是`MySQL5.7+`。
 
@@ -197,10 +195,19 @@ server {
 ```Shell
 + application
   + Api
+    + Delete
+      + Example
+        - Index.php
     + Get
       + Example
         - Index.php
+    + Patch
+      + Example
+        - Index.php
     + Post
+      + Example
+        - Index.php
+    + Put
       + Example
         - Index.php
 + conf
@@ -317,11 +324,14 @@ class Index extends AbstractBaeApi
 
 而类`Application\Api\Post\Example\Index`对应的`API`的`uri`也为`/example/index`，但相应的`HTTP METHOD`为`POST`。
 
-由于`HTTP`定义的`url`对于大小写不敏感，在转换为类名时，会自动将每部分的首字母转换为大写，并将下划线及其后的一个字母转换为大写字母，以对应命名空间中的大写字母。
+`PUT`、`PATCH`、`DELETE`等`HTTP METHOD`类推。
+
+由于`HTTP`定义的`url`对于大小写不敏感，在转换为类名时，会自动将每部分的首字母转换为大写，并将`下划线/短横线`及其后的一个字母转换为大写字母，以对应命名空间中的大写字母。
 
 ```text
-GET /example/index        =>    Application\Api\Get\Example\Index
-POST /user_info/get_list   =>    Application\Api\Post\UserInfo\GetList
+GET /example/index          =>    Application\Api\Get\Example\Index
+POST /user_info/create_user    =>    Application\Api\Post\UserInfo\CreateUser
+PUT /user-info/modify-user   =>    Application\Api\Put\UserInfo\ModifyUser
 ```
 
 ### `responseJson()`方法
@@ -343,6 +353,20 @@ POST /user_info/get_list   =>    Application\Api\Post\UserInfo\GetList
 的格式定义输出数据。
 
 第二个参数是`HTTP`状态码，可以是`404`、`403`、`500`、`200`等值。此参数可以省略，默认值为`200`。
+
+### `httpParams`属性
+
+`AbstractBaseApi`类的`httpParams`存储了与`HTTP METHOD`相对应的`request`数据。
+
+对于`POST`、`PUT`、`PATCH`，如果提交的`HEADER`中`Content-Type`为`application/json`的情况，存储了`json`解码后的`Request Payload`数据。
+
+对于`PUT`、`PATCH`的`application/x-www-form-urlencoded`，存储了（解析后的）`Form Data`数据，类似于`$_POST`的值。
+
+对于`POST`的`form-data`、`multipart/form-data`、`application/x-www-form-urlencoded`，则存储了（解析后的）`Form Data`数据。相当于`$_POST`的值。
+
+对于`GET`和`DELETE`，则存储了解析后的`Query String`键值对。相当于`$_GET`的值。
+
+其它情况，则直接在`httpParams`的`RAW`元素中存储了提交的`Request Payload`的原始值。
 
 ### `ErrorCode`类
 

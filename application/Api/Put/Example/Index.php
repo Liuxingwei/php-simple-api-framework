@@ -1,6 +1,6 @@
 <?php
 
-namespace Application\Api\Post\Example;
+namespace Application\Api\Put\Example;
 
 use Lib\Core\AbstractBaseApi;
 use Lib\Core\ErrorCode;
@@ -10,7 +10,7 @@ class Index extends AbstractBaseApi
     public function run()
     {
         $result = ErrorCode::OK;
-        $result['description'] = "I'm a POST request.";
+        $result['description'] = "I'm a PUT request.";
         $this->responseJson($result);
     }
 }
