@@ -13,11 +13,9 @@
 
 譬如，由于`PHP`本身的限制，对于`PUT`、`DELETE`、`PATCH`等`HTTP METHOD`支持不够好，很多框架使用了模拟实现，`SAF`没有这样做，而是只支持`GET`、`POST`。
 
-再比如，对于`RestFul`风格，同一`URI`的不同`HTTP METHOD`代表了不同的操作，`SAF`也不支持这种方式，在`SAF`中一个`URI`仅能支持一种`HTTP METHOD`。
-
 `SAF`也没有`Beautiful URL`路由，`GET`请求的参数是通过形如`name=zhangsan&sex=male`的`QueryString`参数传递的。
 
-`SAF`遵循了惯例优于配置的理念，`API`必须放在指定的目录（项目目录的`Application\Api`）下。
+`SAF`遵循了惯例优于配置的理念，`API`必须放在指定的目录（项目目录的`Application\Api`）下，且`GET`请求对应的`API`类要放在`Get`子命名空间，而`POST`请求对应的`API`类要放在`Post`子命名空间。
 
 数据库方面，`SAF`有一个简单的`DB`类，它是以`PDO`为底层的，理论上它可以支持多种数据库服务，但是目前只在`MySQL`上做过测试。因此最适合的数据库搭配就是`MySQL5.7+`。
 
@@ -199,8 +197,12 @@ server {
 ```Shell
 + application
   + Api
-    + Example
-      - Index.php
+    + Get
+      + Example
+        - Index.php
+    + Post
+      + Example
+        - Index.php
 + conf
   - config.php.sample
 + lib
@@ -236,29 +238,26 @@ server {
 
 ## 五、创建`API`
 
-在`Application\Api`中根据业务需要创建一个子文件夹（也可以是多级文件夹），在其中创建一个`API`类。
+在`application/Api/Get`或`application/Api/Post`中根据业务需要创建一个子文件夹（也可以是多级文件夹），在其中创建一个`API`类。
 
 该类继承`Lib\Core\AbstractBaseApi`类，并实现`run()`方法。
 
-还要为该指定`HTTP METHOD`，方法是为其定义一个名为`$httpMethod`的变量，并将其赋值为`GET`或`POST`字符串。
-
-例如，创建`Example`文件夹，并在其中创建`Index.php`，文件内容如下：
+例如，在`Get`文件夹创建`Example`文件夹，并在其中创建`Index.php`，文件内容如下：
 
 ```PHP
 <?php
-namespace Application\Api\Example;
+namespace Application\Api\Get\Example;
 
 use Lib\Core\AbstractBaseApi;
 
 class Index extends AbstractBaeApi
 {
-  protected $httpMethod = 'GET';
-
   public function run()
   {
     $result = [
       'code' => 200,
       'message' => 'OK',
+      'description' => "I'm a GET request.",
     ];
     $this->responseJson($result);
   }
@@ -270,25 +269,59 @@ class Index extends AbstractBaeApi
 ```Javascript
 {
   "code": 200,
-  "message": "OK"
+  "message": "OK",
+  "description": "I'm a GET request."
 }
 ```
 
 的`json`返回。
 
+此时，向`/example/index`发出`POST`请求，收到的则是
+
+```JavaScript
+{
+  "code": 404,
+  "message": "API /example/index 不存在"
+}
+```
+
+要创建一个接受`/example/index`的`POST`请求的`API`，需要在`application/Api/Post`中创建`Example`文件夹，并在`Example`中创建`Index.php`文件：
+
+```PHP
+<?php
+namespace Application\Api\Post\Example;
+
+use Lib\Core\AbstractBaseApi;
+
+class Index extends AbstractBaeApi
+{
+  public function run()
+  {
+    $result = [
+      'code' => 200,
+      'message' => 'OK',
+      'description' => "I'm a POST request.",
+    ];
+    $this->responseJson($result);
+  }
+}
+```
+
 ### 命名空间与`uri`的关系
 
 `API`类遵循`psr4`标准，其命名空间`Application\Api`映射于项目根目录中的`application/Api`目录。
 
-`API`类名与`API`的`uri`之间的关系是，将类的命名空间中的`Application\Api`部分去除，并将`\`转换为`/`，就是该`API`的`uri`。
+`API`类名与`API`的`uri`之间的关系是，将类的命名空间中的`Application\Api\xxx`部分去除，并将`\`转换为`/`，就是该`API`的`uri`，而其中的`xxx`即对应了`HTTP METHOD`。
 
-例如类`Application\Api\Example\Index`对应的`API`的`uri`即为`/example/index`。
+例如类`Application\Api\Get\Example\Index`对应的`API`的`uri`即为`/example/index`，相应的`HTTP METHOD`为`GET`。
 
-由于`HTTP`定义的`url`对于大小写不敏感，在转换为类名时，会自动将每部分的首字母转换为大写，并将下划线及其后的一个字母转换为大写字母，以对应命名空间和中的大写字母。
+而类`Application\Api\Post\Example\Index`对应的`API`的`uri`也为`/example/index`，但相应的`HTTP METHOD`为`POST`。
+
+由于`HTTP`定义的`url`对于大小写不敏感，在转换为类名时，会自动将每部分的首字母转换为大写，并将下划线及其后的一个字母转换为大写字母，以对应命名空间中的大写字母。
 
 ```text
-/example/index        =>    Application\Api\Example\Index
-/user_info/get_list   =>    Application\Api\UserInfo\GetList
+GET /example/index        =>    Application\Api\Get\Example\Index
+POST /user_info/get_list   =>    Application\Api\Post\UserInfo\GetList
 ```
 
 ### `responseJson()`方法
@@ -327,15 +360,13 @@ const HTTP_METHOD_ERROR = ['code' => 500, 'message' => '仅支持 POST 和 GET �
 
 ```PHP
 <?php
-namespace Application\Api\Example;
+namespace Application\Api\Get\Example;
 
 use Lib\Core\AbstractBaseApi;
 use Lib\Core\ErrorCode;
 
 class Index extends AbstractBaeApi
 {
-  protected $httpMethod = 'GET';
-
   public function run()
   {
     $this->responseJson(ErrorCode::OK);
@@ -433,7 +464,7 @@ public function run()
 有些模块会有共通的初始化行为，可以将其定义在`init()`方法中，这个方法是定义在`AbstractBaseApi`类中的，它会在`API`类实例化时被自动调用。在定义`init()`方法时，应该在其第一行调用父类的`init()`，以实现父类中定义的初始化行为（除非你有意要跳过父类的初始化）。
 
 ```PHP
-namespace Application\Api\Example;
+namespace Application\Api\Get\Example;
 abstract public class AbstractExampleBaseApi
 {
   protected function init()
