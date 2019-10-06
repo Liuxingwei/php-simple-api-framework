@@ -107,25 +107,25 @@ class DB
 
     /**
      * 查询到的结果总数
-     * @var integer
+     * @var int
      */
     protected $count;
 
     /**
      * 分页时每页的条数，默认为20
-     * @var integer
+     * @var int
      */
     protected $pageSize = 20;
 
     /**
      * 当前页数
-     * @var integer
+     * @var int
      */
     protected $page;
 
     /**
      * 查询结果总页数
-     * @var integer
+     * @var int
      */
     protected $totalPages;
 
@@ -157,11 +157,32 @@ class DB
     private $error;
 
     /**
-     * 获取数据时的 fetch 模式
+     * 获取数据时的 fetch 模式，此变量仅影响当前实例
      *
-     * @var integer|null
+     * @var int|null
      */
     private $fetchMode = null;
+
+    /**
+     * 数据库连接数组的键，用于标识使用了相同配置参数的数据库连接，实现（分组单例）
+     *
+     * @var string
+     */
+    private $key;
+
+    /**
+     * DB的默认fetch模式，此变量影响全部（未指定connFetchModes的实例和fetchMode）的实例
+     *
+     * @var int
+     */
+    private static $defaultFetchMode = null;
+
+    /**
+     * 连接的默认模式数组，每个DB连接可能有一个对应的fetch模式，存在在本变量的相同key值元素中，此变量影响（未指定fetchMode）相同数据库连接的实例。
+     *
+     * @var array
+     */
+    private static $connFetchModes = [];
 
     /**
      * 初始化DB库
@@ -207,6 +228,7 @@ class DB
         throw new InvalidArgumentException('获取DB类实例方法参数错误', '500');
     }
 
+
     /**
      * 初始化DB库
      *
@@ -227,6 +249,7 @@ class DB
     public function __construct($dbConfig = null)
     {
         list($dbConfig, $key) = self::generateKey($dbConfig);
+        $this->setKey($key);
         $dsn = $dbConfig['dbms'] . ':';
         $dsnParams = [];
         if (isset($dbConfig['dbname'])) {
@@ -247,10 +270,10 @@ class DB
         } else {
             $encoding = [PDO::MYSQL_ATTR_INIT_COMMAND => 'SET NAMES \'UTF8MB4\''];
         }
-        if (!isset(DB::$connections[$key])) {
-            DB::$connections[$key] = new PDO($dsn, $dbConfig['user'], $dbConfig['password'], $encoding);
+        if (!isset(self::$connections[$this->getKey()])) {
+            self::$connections[$this->getKey()] = new PDO($dsn, $dbConfig['user'], $dbConfig['password'], $encoding);
         }
-        $this->dbh = DB::$connections[$key];
+        $this->dbh = self::$connections[$this->getKey()];
 
         $this->dbh->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
 
@@ -260,9 +283,59 @@ class DB
     }
 
     /**
-     * 设置 fetch 模式
+     * 设置实例的数据库连接的key
      *
-     * @param integer $fetchMode
+     * @param string $key
+     * @return void
+     */
+    private function setKey($key)
+    {
+        $this->key = $key;
+    }
+
+    /**
+     * 获取实例的数据库连接的key
+     *
+     * @return string
+     */
+    private function getKey()
+    {
+        return $this->key;
+    }
+
+    /**
+     * 设置DB级别的fetchMode默认值
+     *
+     * @param int $fetchMode 可取值参见 PDO::FETCH*
+     * @return void
+     */
+    public static function setDefaultFetchMode($fetchMode)
+    {
+        self::$defaultFetchMode = $fetchMode;
+        foreach (self::$connections as $key => $value) {
+            if (isset(self::$connFetchModes[$key])) {
+                $value->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, $fetchMode);
+            }
+        }
+    }
+
+    /**
+     * 设置数据库连接的fetchMode默认值
+     *
+     * @param int $fetchMode 可取值参见 PDO::FETCH*
+     * @return void
+     */
+    public function setConnFetchMode($fetchMode)
+    {
+        self::$connFetchModes[$this->getKey()] = $fetchMode;
+        self::$connections[$this->getKey()]->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, $fetchMode);
+    }
+
+
+    /**
+     * 设置当前实例的 fetch 模式
+     *
+     * @param int $fetchMode 可取值参见 PDO::FETCH*
      * @return void
      */
     public function setFetchMode($fetchMode)
@@ -276,8 +349,8 @@ class DB
      * 如果传递的参数为 null，但 $this->fetchMode 不为 null，返回 $this->fetchMode;
      * 如果 $this->fetchMode 也为 null，返回 $this->dbh 对象的 PDO::ATTR_DEFAULT_FETCH_MODE
      *
-     * @param integer $fetchMode
-     * @return integer
+     * @param int $fetchMode
+     * @return int
      */
     protected function getFetchMode($fetchMode = null)
     {
@@ -540,7 +613,7 @@ class DB
      *     因此不能使用 if ($db->insert(....)) 或 false == $db->insert(...) 判断插入动作是否成功。
      *     在 PHP 中 0 是假值，仅在严格相等判断时，才与 false 有区别，要用 false === $db->insert(...) 作判断。
      * @param array 要插入数据的 map 数组（关联数组），键对应要插入的字段，值对应该字段要插入的值。
-     * @return Boolean|integer 如果插入失败，返回 false。插入成功，或者返回新插入行的自增主键（有自增主键），或者返回 0 （无自增主键）。
+     * @return Boolean|int 如果插入失败，返回 false。插入成功，或者返回新插入行的自增主键（有自增主键），或者返回 0 （无自增主键）。
      */
     public function insert($vals)
     {
@@ -580,7 +653,7 @@ class DB
      *       如若区别对待，不能直接用 if ($db->update(....)) 或 false == $db->update(...) 进行判断。
      *       因为 PHP 中 0 是假值，仅在严格相等判断时，才与 false 有区别，要用 false === $db->update(...) 作判断。
      * @param array $vals 要更新的字段和值构成的关联数组，其中键为字段名，值为更新后的值
-     * @return Boolean|integer 更新失败返回 false，成功返回影响行数。
+     * @return Boolean|int 更新失败返回 false，成功返回影响行数。
      */
     public function update($vals)
     {
@@ -723,7 +796,7 @@ class DB
      *   要获取的列在 fields() 方法中指定的列中的序号，从 0 开始计，例如：
      *   $db->table('user')->fields('id, username, age')->selectColumn(1);
      *   获取的即是 username。
-     * @param integer $index 要获取的列在 fields() 方法中指定的列中的序号，从 0 开始计
+     * @param int $index 要获取的列在 fields() 方法中指定的列中的序号，从 0 开始计
      * @return Mixted 返回值类型与列类型相关
      */
     public function selectColumn($index)
@@ -761,7 +834,7 @@ class DB
      * 示例：
      *   分页查询用户列表，每面15条，查询第3页
      *   $db->table('user')->setPageSize(15)->selectPage(3);
-     * @param integer $page 要获取的数据的页码
+     * @param int $page 要获取的数据的页码
      * @return array 返回一个包含结果集中所有符合条件行的数组。该数组的每一行为一个索引为列名和以0开始的列号的数组。
      */
     public function selectPage($page = 1, $fetchMode = null)
@@ -778,7 +851,7 @@ class DB
      * 示例：
      *   计算状态为可用的用户的总数
      *   $db->table('user')->where("status = 'ENABLED'")->count();
-     * @return integer 结果集总行数
+     * @return int 结果集总行数
      */
     public function count()
     {
@@ -803,7 +876,7 @@ class DB
      * 示例：
      *   计算状态为可用的用户列表总页数，按每页15行计算
      *   $db->table('user')->where("status = 'ENABLED'")->setPageSize(15)->calcPages();
-     * @return integer 符合条件的用户列表总页数
+     * @return int 符合条件的用户列表总页数
      */
     public function calcPages()
     {
@@ -817,7 +890,7 @@ class DB
      *   如果已经使用 calcPages() 方法或 selectPage() 方法，可以直接使用 totalPages() 方法获取总页数。
      *   $db->table('user')->where("status = 'ENABLED'")->setPageSize(15)->selectPage(3);
      *   $db->totalPages();
-     * @return integer 总页数
+     * @return int 总页数
      */
     public function totalPages()
     {
@@ -829,7 +902,7 @@ class DB
      * 示例：
      *   $db->table('user')->where("status = 'ENABLED'")->setPageSize(15)->selectPage(3);
      *   $db->page();
-     * @return integer 当前页码
+     * @return int 当前页码
      */
     public function page()
     {
@@ -841,7 +914,7 @@ class DB
      * 示例：
      *   $db->table('user')->where("status = 'ENABLED'")->setPageSize(15)->selectPage(3);
      *   $db->totalPages();
-     * @return integer 结果集总行数
+     * @return int 结果集总行数
      */
     public function totalRows()
     {
@@ -853,7 +926,7 @@ class DB
      * 示例：
      *   $db->table('user')->setPageSize(15);
      *   $db->pageSize();
-     * @return integer 每页的行数设置
+     * @return int 每页的行数设置
      */
     public function pageSize()
     {
@@ -866,7 +939,7 @@ class DB
      * 示例：
      *   $db->table('user')->where("status = 'ENABLED'")->setPageSize(15)->selectPage(3);
      *   $db->prev();
-     * @return integer 前一页页码
+     * @return int 前一页页码
      */
     public function prev()
     {
@@ -882,7 +955,7 @@ class DB
      * 示例：
      *   $db->table('user')->where("status = 'ENABLED'")->setPageSize(15)->selectPage(3);
      *   $db->next();
-     * @return integer 后一页页码
+     * @return int 后一页页码
      */
     public function next()
     {
@@ -1066,7 +1139,7 @@ class DB
     /**
      * 直接执行 SQL
      * @param string $sql 要执行的 SQL
-     * @return integer
+     * @return int
      */
     public function exec($sql)
     {

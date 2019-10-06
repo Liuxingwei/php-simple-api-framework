@@ -548,14 +548,17 @@ if (null !== $db->getError()) {
 } else {
     echo '更新成功';
 }
+```
 
 ### 5. select()
 
-方法签名：`select():boolean|array`。
+方法签名：`select(int $fetchMode = null):boolean|array`。
 
 `select()`方法用于查询数据库。
 
-查询成功失败返回`false`，查询成功返回符合条件的行的数组。数组中的每个元素对应一行，同时有两组键值对：以列名为键的一组，以数值为键的一组（数值键的顺序与`fields`指定的顺序相同，如果`fields`指定为`*`，则以数据库定义顺序排列）。
+查询成功失败返回`false`，查询成功返回符合条件的行的数组。数组中的每个元素对应一行，格式受参数`$fetchMode`影响。
+
+参数`$fetchMode`的可选值为`PDO::FETCH_*`系列常量之一，其值影响到返回数据的格式。参见 [PHP 官方的 PDO 文档](hhttps://www.php.net/manual/zh/pdostatement.fetch.php)。此参数可以省略，省略后的返回值格式参见[`fetchMode`](#fetchMode)。
 
 ```PHP
 $rows = $db->table('user')
@@ -568,11 +571,8 @@ if (!rows) {
 ...
 // array(
 //   '0' => {
-//     '0' => 'liwei',
 //     'user_name' => 'liwei',
-//     '1' => 'male',
 //     'sex' => 'male',
-//     '2' => 32,
 //     'age' => 32,
 //   },
 //   ...
@@ -581,11 +581,13 @@ if (!rows) {
 
 ### 6. selectOne()
 
-方法签名：`selectOne():boolean|array`。
+方法签名：`selectOne(int $fetchMode = null):boolean|array`。
 
 `selectOne()`方法用于仅获取一行符合条件的数据。
 
-查询失败返回`false`，查询成功返回一个数组，该数组有丙组键值对：以列名为键的一组，以数值为键的一组（数值键的顺序与`fields`指定的顺序相同，如果`fields`指定为`*`，则以数据库定义顺序排列）。
+查询失败返回`false`，查询成功返回一个数组，数组格式受`$fetchMode`参数影响。
+
+参数`$fetchMode`的可选值为`PDO::FETCH_*`系列常量之一，其值影响到返回数据的格式。参见 [PHP 官方的 PDO 文档](hhttps://www.php.net/manual/zh/pdostatement.fetch.php)。此参数可以省略，省略后的返回值格式参见[`fetchMode`](#fetchMode)。
 
 ```PHP
 $rows = $db->table('user')
@@ -625,7 +627,39 @@ $res = $db->table('user')
    ->selectColumn();
 ```
 
-## 八、分页及相关方法的用法
+## 八、<span id="fetchMode">`fetchMode`</span>
+
+`fetchMode`会影响到获取数据的结果格式。
+
+`SAF`的`DB`类仅支持`PDO`，因此其`fetchMode`的可取值也与`PDO`保持一致，且可以直接使用`PDO::FETCH_*`系列常量进行设置。参见 [PHP 官方的 PDO 文档](hhttps://www.php.net/manual/zh/pdostatement.fetch.php)。
+
+`DB`类有四种情况可以影响到最终的`fetchMode`模式，依优先级分别为：
+
+### 1. `select()`、`selectOne()`、`selectPage()`方法的`fetchMode`参数
+
+可以在调用上面三个方法时，指定`$fetchMode`参数，返回值即以指定的模式返回。
+
+如果省略此参数，则会沿用后续规则。
+
+### 2. `setFetchMode()`方法指定模式
+
+如果使用`setFetchMode(int $fetchMode)`方法指定`fetchMode`模式，会影响到该实例的所有`select*()`方法的默认返回值格式。
+
+如果没有使用`setFetchMode()`方法指定模式，不带有`$fetchMode`参数的`select*()`方法的结果会沿用后续规则。
+
+### 3. `setConnFetchMode()`方法指定模式
+
+使用`setConnFetchMode(int $fetchMode)`方法，可以指定`数据库连接`的`fetchMode`，它会影响到使用相同连接的（未使用`setFetchMode()`指定`fetchMode`的）所有实例的`select()`方法的默认返回值格式。
+
+如果没有使用`setFetchMode()`和`setConnFetchMode()`指定`fetchMode`，`select*()`方法的默认返回值会沿用后续规则。
+
+### 4. `DB::setDefaultFetchMode()`方法指定模式
+
+使用`DB::setDefaultFetchMode(int $fetchMode)`将影响所有（未使用`setFetchMode()`和`setConnFetchMode()`指定`fetchMode`的）实例（包括使用该方法之后生成的实例）的`select*()`方法的默认返回值格式。
+
+**注意：如果没有使用上述这些方法指定`fetchMode`，默认的模式为`PDO::FETCH_ASSOC`，这一点与`PDO`的默认模式不同。**
+
+## 九、分页及相关方法的用法
 
 分页获取数据需要设定每页数据的条数、要获取的数据的页码：
 
@@ -662,13 +696,15 @@ $pagerationInfo = $db->pagerationInfo() // 获取除分页数据集之外的所�
 
 ### 2. selectPage()
 
-方法签名：`selectPage([integer $currentPage]):boolean|array`。
+方法签名：`selectPage([integer $currentPage], int $fetchMode = null):boolean|array`。
 
 `selectPage()`方法用于获取一页数据。
 
-参数为需要获取数据的页码。参数可以省略，默认值为`1`。
+参数`$currentPage`为需要获取数据的页码。此参数可以省略，默认值为`1`。
 
-查询失败返回`false`，查询成功返回数据行的数组。数组中的每个元素对应一行，同时有两组键值对：以列名为键的一组，以数值为键的一组（数值键的顺序与`fields`指定的顺序相同，如果`fields`指定为`*`，则以数据库定义顺序排列）。
+参数`$fetchMode`的可选值为`PDO::FETCH_*`系列常量之一，其值影响到返回数据的格式。参见 [PHP 官方的 PDO 文档](hhttps://www.php.net/manual/zh/pdostatement.fetch.php)。此参数可以省略，省略后的返回值格式参见[`fetchMode`](#fetchMode)。
+
+查询失败返回`false`，查询成功返回数据行的数组。格式受参数`$fetchMode`影响。
 
 ```PHP
 $rows = $db->table('user')
@@ -743,7 +779,7 @@ if (!rows) {
 ]
 ```
 
-## 九、事务及相关方法的用法
+## 十、事务及相关方法的用法
 
 `DB`类支持事务。
 
@@ -846,7 +882,7 @@ $db->commit(); // 提交事务
 
 提交事务。执行成功返回`true`,失败返回`false`。
 
-## 十、调试
+## 十一、调试
 
 可以使用`getSql()`方法和`getDebugInfo()`方法获取调试所需信息：
 
@@ -889,7 +925,7 @@ $db->commit(); // 提交事务
 
 与`getError()`方法不同，`DB::getLastError()`是一个**静态类方法**，它用于获取最后一次产生错误的`SQL`指令的错误信息（也许最后一次错误`SQL`与执行`DB::getLastError()`方法之间曾经有一个或者多个正确执行的`SQL`）。
 
-## 十一、其他
+## 十二、其他
 
 `DB`类封装了常见的数据库操作，以降低直接使用底层数据库类的复杂性，提高开发效率。
 
