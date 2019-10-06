@@ -313,7 +313,7 @@ class DB
     {
         self::$defaultFetchMode = $fetchMode;
         foreach (self::$connections as $key => $value) {
-            if (isset(self::$connFetchModes[$key])) {
+            if (!isset(self::$connFetchModes[$key])) {
                 $value->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, $fetchMode);
             }
         }
