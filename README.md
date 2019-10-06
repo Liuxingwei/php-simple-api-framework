@@ -366,7 +366,7 @@ PUT /user-info/modify-user   =>    Application\Api\Put\UserInfo\ModifyUser
 
 对于`GET`和`DELETE`，则存储了解析后的`Query String`键值对。相当于`$_GET`的值。
 
-其它情况，则直接在`httpParams`的`RAW`元素中存储了提交的`Request Payload`的原始值。
+其它情况，则直接在`httpParams`的`BODY`元素中存储了提交的`Request Payload`的原始值。
 
 ### `ErrorCode`类
 
