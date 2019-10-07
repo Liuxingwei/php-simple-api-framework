@@ -272,10 +272,10 @@ class DB
         }
         if (!isset(self::$connections[$this->getKey()])) {
             self::$connections[$this->getKey()] = new PDO($dsn, $dbConfig['user'], $dbConfig['password'], $encoding);
+            $fetchMode = self::$defaultFetchMode ?: PDO::FETCH_ASSOC;
+            self::$connections[$this->getKey()]->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, $fetchMode);
         }
         $this->dbh = self::$connections[$this->getKey()];
-
-        $this->dbh->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
 
         if ('Lib\DB' !== ($className = get_class($this)) && is_null($this->table)) {
             $this->table($this->className2TableName($className));
