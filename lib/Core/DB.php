@@ -631,12 +631,8 @@ class DB
         $this->actualSql = $this->mapParams($this->sql, $this->insertParams);
 
         $this->sth = $this->dbh()->prepare($this->sql, array(PDO::ATTR_CURSOR => PDO::CURSOR_FWDONLY));
-        if (!$this->sth()->execute($this->insertParams)) {
+        if (!$this->sth()->execute($this->insertParams) || $this->sth()->rowCount() < 1) {
             $this->catchError();
-            return false;
-        }
-        $row = $this->sth()->rowCount();
-        if ($row != 1) {
             return false;
         }
         return $this->dbh()->lastInsertId();
@@ -681,7 +677,7 @@ class DB
             return false;
         }
         $row = $this->sth()->rowCount();
-        return $row >= 1;
+        return $row;
     }
 
     /**
@@ -716,10 +712,9 @@ class DB
         if (!$this->sth()->execute($this->whereParams)) {
             $this->catchError();
             return false;
-        } else {
-            $row = $this->sth()->rowCount();
-            return $row >= 1;
         }
+        $row = $this->sth()->rowCount();
+        return $row;
     }
 
     /**
@@ -1157,10 +1152,7 @@ class DB
         $this->sql = $sql;
         $res = $this->dbh()->query($sql);
         if (!$res) {
-            $this->lastError = [
-                'errorCode' => $this->dbh()->errorCode(),
-                'errorInfo' => $this->dbh()->errorInfo()
-            ];
+            $this->catchError();
         }
         return $res;
     }
@@ -1181,11 +1173,13 @@ class DB
      */
     private function catchError()
     {
-        self::$lastError = [
-            'errorCode' => $this->sth()->errorCode(),
-            'errorInfo' => $this->sth()->errorInfo()
-        ];
-        $this->error = self::$lastError;
+        if (null !== $this->sth() && $this->sth()->errorCode() !== '00000') {
+            self::$lastError = [
+                'errorCode' => $this->sth()->errorCode(),
+                'errorInfo' => $this->sth()->errorInfo()
+            ];
+            $this->error = self::$lastError;
+        }
     }
 
     /**

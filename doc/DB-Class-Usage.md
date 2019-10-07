@@ -458,30 +458,29 @@ $userId = $db->getLastInsertId();
 
 删除失败返回`false`，删除成功返回删除的行数。
 
-需要注意的是，基于`MySQL`底层的实现，**如果没有符合删除条件的记录，该方法返回`false`,这种情况不属于执行失败。** 因此不能用如下方式做判断：
+如果删除动作没有错误，但是符合条件的行数为`0`，则`delete()`方法返回`0`，由于`0`也是假值，因此不能使用如下方式判断删除是否失败：
 
 ```PHP
 $res = $db->where('user')->where('id = :id', [':id' => 9])->delete();
 if (!$res) {
     echo '删除失败';
-}
-if (false == $res) {
-    echo '删除失败';
-}
-if ($res) {
+} else {
     echo '删除成功';
 }
-if (true == $res) {
-    echo '删除成功';
-}
-
 ```
 
-需要根据是否产生错误来确定删除是否失败（为确保正确判断，请一直使用此方式做验证）：
+需要根据全等判断或是否有错误产生来确定删除是否失败（为确保正确判断，请一直使用此方式做验证）：
 
 ```PHP
 $res = $db->where('user')->where('id = :id', [':id' => 9])->delete();
-if (null !== $db->getError()) {
+if (false === $res) {
+    echo '删除失败';
+} else {
+    echo '删除成功';
+}
+
+//----------
+if ($db->getError() !== null) {
     echo '删除失败';
 } else {
     echo '删除成功';
@@ -539,11 +538,29 @@ $db->table('procuet')->update('amount = price * number);
 // 正确，语句被解析为 UPDATE product SET amount = price * number
 ```
 
-基于`MySQL`底层的实现，`update()`方法在更新了`0`条和更新出错时均返回`false`，因此**不能根据其返回值判断是否更新出错，需要根据是否产生错误来做判断**：
+如果更新动作没有错误，但是符合条件的行数为`0`，则`update()`方法返回`0`，由于`0`也是假值，因此不能使用如下方式判断更新是否失败：
 
 ```PHP
-$db->table('user')->where('id = :id', [':id' => 9])->update('age = age + 1');
-if (null !== $db->getError()) {
+$res = $db->table('user')->where('id = :id', [':id' => 9])->update('age = age + 1');
+if (!$res) {
+    echo '更新失败';
+} else {
+    echo '更新成功';
+}
+```
+
+需要根据全等判断或是否有错误产生来确定更新是否失败（为确保正确判断，请一直使用此方式做验证）：
+
+```PHP
+$res = $db->table('user')->where('id = :id', [':id' => 9])->update('age = age + 1');
+if (false === $res) {
+    echo '更新失败';
+} else {
+    echo '更新成功';
+}
+
+//----------
+if ($db->getError() !== null) {
     echo '更新失败';
 } else {
     echo '更新成功';
