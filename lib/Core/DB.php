@@ -1,6 +1,6 @@
 <?php
 
-namespace Lib;
+namespace Lib\Core;
 
 use InvalidArgumentException;
 use PDO;
