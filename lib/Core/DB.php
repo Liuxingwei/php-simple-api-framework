@@ -1,6 +1,6 @@
 <?php
 
-namespace Lib\Core;
+namespace Lib;
 
 use InvalidArgumentException;
 use PDO;
@@ -728,10 +728,7 @@ class DB
      */
     public function selectOne($fetchMode = null)
     {
-        if (is_null($this->fields)) {
-            $this->fields = '*';
-        }
-        $this->sql = $this->generateBaseSql($this->fields);
+        $this->sql = $this->generateBaseSql();
 
         $this->actualSql = $this->mapParams($this->sql, $this->combineSelectParams());
 
@@ -754,16 +751,7 @@ class DB
      */
     public function select($fetchMode = null)
     {
-        if (is_null($this->fields)) {
-            $this->fields = '*';
-        }
-        $this->sql = $this->generateBaseSql($this->fields);
-
-        if (!is_null($this->page)) {
-            $start = ($this->page - 1) * $this->pageSize;
-            $offset = $this->pageSize;
-            $this->sql .= ' LIMIT ' . $start . ',' . $offset;
-        }
+        $this->sql = $this->generateBaseSql();
 
         $this->actualSql = $this->mapParams($this->sql, $this->combineSelectParams());
 
@@ -796,10 +784,7 @@ class DB
      */
     public function selectColumn($index)
     {
-        if (is_null($this->fields)) {
-            $this->fields = '*';
-        }
-        $this->sql = $this->generateBaseSql($this->fields);
+        $this->sql = $this->generateBaseSql();
 
         $this->actualSql = $this->mapParams($this->sql, $this->combineSelectParams());
 
@@ -835,7 +820,25 @@ class DB
     public function selectPage($page = 1, $fetchMode = null)
     {
         $this->page = $page;
-        $res = $this->select($fetchMode);
+
+        if (!is_null($this->page)) {
+            $start = ($this->page - 1) * $this->pageSize;
+            $offset = $this->pageSize;
+            $this->sql .= ' LIMIT ' . $start . ',' . $offset;
+        }
+        if ($this->group) {
+            $this->sql = $this->generateBaseSql(' SQL_CALC_FOUND_ROWS ' . $this->getFields());
+        } else {
+            $this->sql = $this->generateBaseSql();
+        }
+        $this->actualSql = $this->mapParams($this->sql, $this->combineSelectParams());
+
+        $this->sth = $this->dbh()->prepare($this->sql, array(PDO::ATTR_CURSOR => PDO::CURSOR_FWDONLY));
+        if (!$this->sth()->execute($this->combineSelectParams())) {
+            $this->catchError();
+            return false;
+        }
+        $res = $this->sth()->fetchAll($this->getFetchMode($fetchMode));
         $this->count();
         $this->calcPages();
         return $res;
@@ -1031,17 +1034,32 @@ class DB
     }
 
     /**
+     * 获取 Select 语句的提取列，如果没有特别指定，则默认为 *
+     *
+     * @return string fields 串
+     */
+    protected function getFields()
+    {
+        if (null !== $this->fields) {
+            return $this->fields;
+        } else {
+            return '*';
+        }
+    }
+
+    /**
      * 生成基础 SQL
-     * @param $fields string
+     * @param $fields string 如果为 null，则取类实例的 fields 值
      * @return string
      */
-    private function generateBaseSql($fields)
+    private function generateBaseSql($fields = null)
     {
-        if ($this->group) {
-            $baseSql = 'SELECT  SQL_CALC_FOUND_ROWS ' . $fields . ' FROM ' . $this->table;
-        } else {
-            $baseSql = 'SELECT ' . $fields . ' FROM ' . $this->table;
+        if (null == $fields) {
+            $fields = $this->getFields();
         }
+
+        $baseSql = 'SELECT ' . $fields . ' FROM ' . $this->table;
+
         if (!is_null($this->join)) {
             $baseSql .= ' ' . $this->join;
         }
