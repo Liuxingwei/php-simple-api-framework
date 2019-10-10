@@ -326,11 +326,11 @@ class Index extends AbstractBaeApi
 
 `PUT`、`PATCH`、`DELETE`等`HTTP METHOD`类推。
 
-由于`HTTP`定义的`url`对于大小写不敏感，在转换为类名时，会自动将每部分的首字母转换为大写，并将`下划线/短横线`及其后的一个字母转换为大写字母，以对应命名空间中的大写字母。
+由于`HTTP`定义的`url`对于大小写不敏感，在转换为类名时，会自动将每部分的首字母转换为大写，并将`短横线`及其后的一个字母转换为大写字母，以对应命名空间中的大写字母。
 
 ```text
 GET /example/index          =>    Application\Api\Get\Example\Index
-POST /user_info/create_user    =>    Application\Api\Post\UserInfo\CreateUser
+POST /user-info/create-user    =>    Application\Api\Post\UserInfo\CreateUser
 PUT /user-info/modify-user   =>    Application\Api\Put\UserInfo\ModifyUser
 ```
 
@@ -540,7 +540,7 @@ class UserInfo
 }
 ```
 
-框架也会用类似于`uri`转换`API`类名的方式，将类名定义中的大写字母转换「下划线加小写」字母的形式。
+框架会将类名定义中的大写字母转换「下划线加小写」字母的形式。
 
 注意不要在`MySQL`中用驼峰法命名表名，而要用下划线命名法。
 

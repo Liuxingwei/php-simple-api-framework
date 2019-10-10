@@ -16,7 +16,7 @@ $scriptArray = explode('/', $scriptPath);
 foreach ($scriptArray as $key => $value) {
     $scriptArray[$key] = ucfirst($value);
 }
-$className = '\\Application\\Api\\' . ucfirst(strtolower($_SERVER['REQUEST_METHOD'])) . preg_replace_callback('|_(.)|', static function ($match) {
+$className = '\\Application\\Api\\' . ucfirst(strtolower($_SERVER['REQUEST_METHOD'])) . preg_replace_callback('|-(.)|', static function ($match) {
     return strtoupper($match[1]);
 }, implode('\\', $scriptArray));
 if (!class_exists($className) || (new ReflectionClass($className))->isAbstract() || !method_exists($className, 'run')) {
