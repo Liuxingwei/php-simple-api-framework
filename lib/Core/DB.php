@@ -184,6 +184,8 @@ class DB
      */
     private static $connFetchModes = [];
 
+    private static $transactions = [];
+
     /**
      * 初始化DB库
      *
@@ -1128,7 +1130,14 @@ class DB
      */
     public function beginTransaction()
     {
-        return $this->dbh()->beginTransaction();
+        $key = $this->getKey();
+        if (isset(self::$transactions[$key]) && self::$transactions[$key] > 0) {
+            self::$transactions[$key]++;
+            return true;
+        } else {
+            self::$transactions[$key] = 1;
+            return $this->dbh()->beginTransaction();
+        }
     }
 
     /**
@@ -1137,7 +1146,14 @@ class DB
      */
     public function commit()
     {
-        return $this->dbh()->commit();
+        $key = $this->getKey();
+        if (isset(self::$transactions[$key]) && self::$transactions[$key] > 0) {
+            self::$transactions[$key]--;
+        }
+        if (isset(self::$transactions[$key]) && 0 === self::$transactions[$key]) {
+            return $this->dbh()->commit();
+        }
+        return false;
     }
 
     /**
@@ -1146,7 +1162,14 @@ class DB
      */
     public function rollBack()
     {
-        return $this->dbh()->rollBack();
+        $key = $this->getKey();
+        if (isset(self::$transactions[$key]) && self::$transactions[$key] > 0) {
+            self::$transactions[$key]--;
+        }
+        if (isset(self::$transactions[$key]) && 0 === self::$transactions[$key]) {
+            return $this->dbh()->rollBack();
+        }
+        return false;
     }
 
     /**
