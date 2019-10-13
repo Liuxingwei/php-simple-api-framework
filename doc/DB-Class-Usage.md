@@ -575,7 +575,7 @@ if ($db->getError() !== null) {
 
 查询成功失败返回`false`，查询成功返回符合条件的行的数组。数组中的每个元素对应一行，格式受参数`$fetchMode`影响。
 
-参数`$fetchMode`的可选值为`PDO::FETCH_*`系列常量之一，其值影响到返回数据的格式。参见 [PHP 官方的 PDO 文档](hhttps://www.php.net/manual/zh/pdostatement.fetch.php)。此参数可以省略，省略后的返回值格式参见[`fetchMode`](#fetchMode)。
+参数`$fetchMode`的可选值为`PDO::FETCH_*`系列常量之一，其值影响到返回数据的格式。参见 [PHP 官方的 PDO 文档](hhttps://www.php.net/manual/zh/pdostatement.fetch.php)。此参数可以省略，省略后的返回值格式参见[`fetchMode`](#八fetchMode)。
 
 ```PHP
 $rows = $db->table('user')
@@ -604,7 +604,7 @@ if (!rows) {
 
 查询失败返回`false`，查询成功返回一个数组，数组格式受`$fetchMode`参数影响。
 
-参数`$fetchMode`的可选值为`PDO::FETCH_*`系列常量之一，其值影响到返回数据的格式。参见 [PHP 官方的 PDO 文档](hhttps://www.php.net/manual/zh/pdostatement.fetch.php)。此参数可以省略，省略后的返回值格式参见[`fetchMode`](#fetchMode)。
+参数`$fetchMode`的可选值为`PDO::FETCH_*`系列常量之一，其值影响到返回数据的格式。参见 [PHP 官方的 PDO 文档](hhttps://www.php.net/manual/zh/pdostatement.fetch.php)。此参数可以省略，省略后的返回值格式参见[`fetchMode`](#八fetchMode)。
 
 ```PHP
 $rows = $db->table('user')
@@ -644,7 +644,7 @@ $res = $db->table('user')
    ->selectColumn();
 ```
 
-## 八、<span id="fetchMode">`fetchMode`</span>
+## 八、`fetchMode`
 
 `fetchMode`会影响到获取数据的结果格式。
 
