@@ -1180,7 +1180,11 @@ class DB
     public function exec($sql)
     {
         $this->sql = $sql;
-        return $this->dbh()->exec($sql);
+        $res = $this->dbh()->exec($sql);
+        if (!$res) {
+            $this->catchError();
+        }
+        return $res;
     }
 
     /**
