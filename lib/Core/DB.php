@@ -4,6 +4,7 @@ namespace Lib\Core;
 
 use InvalidArgumentException;
 use PDO;
+use PDOStatement;
 
 /**
  * 数据库操作类
@@ -1222,6 +1223,13 @@ class DB
             self::$lastError = [
                 'errorCode' => $this->sth()->errorCode(),
                 'errorInfo' => $this->sth()->errorInfo()
+            ];
+            $this->error = self::$lastError;
+        }
+        if (null !== $this->dbh() && $this->dbh()->errorCode() !== '00000') {
+            self::$lastError = [
+                'errorCode' => $this->dbh()->errorCode(),
+                'errorInfo' => $this->dbh()->errorInfo()
             ];
             $this->error = self::$lastError;
         }
