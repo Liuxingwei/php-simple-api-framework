@@ -447,7 +447,6 @@ class DB
      * 或者
      *   $db->dbh()->exec($sql)
      *
-     * @deprecated
      * @return PDO
      */
     public function dbh()
