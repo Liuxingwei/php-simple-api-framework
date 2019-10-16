@@ -824,16 +824,16 @@ class DB
     {
         $this->page = $page;
 
-        if (!is_null($this->page)) {
-            $start = ($this->page - 1) * $this->pageSize;
-            $offset = $this->pageSize;
-            $this->sql .= ' LIMIT ' . $start . ',' . $offset;
-        }
         if ($this->group) {
             $this->sql = $this->generateBaseSql(' SQL_CALC_FOUND_ROWS ' . $this->getFields());
         } else {
             $this->sql = $this->generateBaseSql();
         }
+
+        $start = ($this->page - 1) * $this->pageSize;
+        $offset = $this->pageSize;
+        $this->sql .= ' LIMIT ' . $start . ',' . $offset;
+
         $this->actualSql = $this->mapParams($this->sql, $this->combineSelectParams());
 
         $this->sth = $this->dbh()->prepare($this->sql, array(PDO::ATTR_CURSOR => PDO::CURSOR_FWDONLY));
@@ -1132,13 +1132,45 @@ class DB
     public function beginTransaction()
     {
         $key = $this->getKey();
-        if (isset(self::$transactions[$key]) && self::$transactions[$key] > 0) {
-            self::$transactions[$key]++;
+        if (isset(self::$transactions[$key]) && self::$transactions[$key]['count'] > 0) {
+            self::$transactions[$key]['count']++;
             return true;
         } else {
-            self::$transactions[$key] = 1;
-            return $this->dbh()->beginTransaction();
+            $res = $this->dbh()->beginTransaction();
+            if (true === $res) {
+                self::$transactions[$key] = [
+                    'count' => 1,
+                    'isRollback' => false,
+                    'info' => ''
+                ];
+            } else {
+                $this->catchError();
+            }
+            return $res;
         }
+    }
+
+    private function checkTransaction()
+    {
+        $key = $this->getKey();
+        if (!isset(self::$transactions[$key])) {
+            $this->setError([
+                'errorCode' => 'HY001',
+                'errorInfo' => [
+                    'info' => '未使用 beginTransaction 开启事务'
+                ]
+            ]);
+            return false;
+        }
+
+        if (self::$transactions[$key]['count'] <= 0) {
+            $this->setError([
+                'errorCode' => 'HY002',
+                'errorInfo' => '事务配对错误'
+            ]);
+            return false;
+        }
+        return true;
     }
 
     /**
@@ -1148,13 +1180,29 @@ class DB
     public function commit()
     {
         $key = $this->getKey();
-        if (isset(self::$transactions[$key]) && self::$transactions[$key] > 0) {
-            self::$transactions[$key]--;
+        if (false === $this->checkTransaction()) {
+            return false;
         }
-        if (isset(self::$transactions[$key]) && 0 === self::$transactions[$key]) {
-            return $this->dbh()->commit();
+        self::$transactions[$key]['count']--;
+
+        if (self::$transactions[$key]['isRollback']) {
+            $this->setError([
+                'errorCode' => 'HY002',
+                'errorInfo' => [
+                    'info' => self::$transactions[$key]['info']
+                ]
+            ]);
+            return false;
         }
-        return false;
+        if (self::$transactions[$key]['count'] > 0) {
+            return true;
+        } else if (0 === self::$transactions[$key]['count']) {
+            $res = $this->dbh()->commit();
+            if (false === $res) {
+                $this->catchError();
+            }
+            return $res;
+        }
     }
 
     /**
@@ -1164,13 +1212,25 @@ class DB
     public function rollBack()
     {
         $key = $this->getKey();
-        if (isset(self::$transactions[$key]) && self::$transactions[$key] > 0) {
-            self::$transactions[$key]--;
+        if (false === $this->checkTransaction()) {
+            return false;
         }
-        if (isset(self::$transactions[$key]) && 0 === self::$transactions[$key]) {
-            return $this->dbh()->rollBack();
+        self::$transactions[$key]['count']--;
+        $res = true;
+
+        if (!self::$transactions[$key]['isRollback']) {
+            self::$transactions[$key]['isRollback'] = true;
+            self::$transactions[$key]['info'] = '事务已经在第 ' . self::$transactions[$key]['count'] . ' 层事件回滚';
         }
-        return false;
+
+        if (0 === self::$transactions[$key]['count']) {
+            $res = $this->dbh()->rollBack();
+            if (false === $res) {
+                $this->catchError();
+            }
+        }
+
+        return $res;
     }
 
     /**
@@ -1213,6 +1273,17 @@ class DB
     }
 
     /**
+     * 设置错误信息
+     *
+     * @param array $error 必须包含 errorCode 和 errorInfo ，否则会出错
+     * @return void
+     */
+    private function setError($error)
+    {
+        $this->error = self::$lastError = $error;
+    }
+
+    /**
      * 在 SQL 执行出错时，捕获错误码和错误信息
      *
      * @return void
@@ -1220,18 +1291,16 @@ class DB
     private function catchError()
     {
         if (null !== $this->sth() && $this->sth()->errorCode() !== '00000') {
-            self::$lastError = [
+            $this->setError([
                 'errorCode' => $this->sth()->errorCode(),
                 'errorInfo' => $this->sth()->errorInfo()
-            ];
-            $this->error = self::$lastError;
+            ]);
         }
         if (null !== $this->dbh() && $this->dbh()->errorCode() !== '00000') {
-            self::$lastError = [
+            $this->setError([
                 'errorCode' => $this->dbh()->errorCode(),
                 'errorInfo' => $this->dbh()->errorInfo()
-            ];
-            $this->error = self::$lastError;
+            ]);
         }
     }
 
