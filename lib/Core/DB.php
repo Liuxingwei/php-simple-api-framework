@@ -185,6 +185,11 @@ class DB
      */
     private static $connFetchModes = [];
 
+    /**
+     * 连接的事务状态数组
+     *
+     * @var array
+     */
     private static $transactions = [];
 
     /**
@@ -433,6 +438,9 @@ class DB
         $this->page = null;
         $this->totalPages = null;
         $this->group = null;
+        $this->having = null;
+        $this->error = null;
+        $this->fetchMode = null;
         $this->actualWhere = null;
         $this->actualSql = null;
         return $this;
