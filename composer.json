@@ -1,6 +1,7 @@
 {
     "name": "liuxingwei/simple-api-framework",
-    "version": "0.0.42",
+    "version": "0.0.43",
+    "description": "A simple API framework.",
     "license": "MIT",
     "minimum-stability": "stable",
     "authors": [{
