@@ -373,6 +373,22 @@ $db->having('avg(price) > :avg and sum(amount) > :total', ['total' => 10000, 'av
 
 ```PHP
 $db->order('`order`.`id` DESC, user.username');
+
+```
+
+### 8. limit()
+
+方法签名：`limit(int|string $rowCount, int|string $offset = 0)`。
+
+`$rowCount`参数指定了要获取的行数，`$offset`参数指定起始偏移量。两个参数均可以是数字或数值字符串。
+
+```PHP
+$db->limit(30); //自第 1 条开始，取 30 条
+$db->limit('30'); //自第 1 条开始，取 30 条
+$db->limit(20, 40); //自第 41 条开始，取 20 条
+$db->limit('20', 40); //自第 41 条开始，取 20 条
+$db->limit(20, 40); //自第 41 条开始，取 20 条
+$db->limit(20, '40'); //自第 41 条开始，取 20 条
 ```
 
 ### 七、执行方法的用法

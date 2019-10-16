@@ -113,6 +113,13 @@ class DB
     protected $count;
 
     /**
+     * 要查询的条数
+     *
+     * @var string
+     */
+    protected $limit;
+
+    /**
      * 分页时每页的条数，默认为20
      * @var int
      */
@@ -433,6 +440,7 @@ class DB
         $this->insertParams = [];
         $this->updateParams = [];
         $this->havingParams = [];
+        $this->limit = null;
         $this->count = null;
         $this->pageSize = 20;
         $this->page = null;
@@ -752,6 +760,22 @@ class DB
     }
 
     /**
+     * 指定要获取数据的 limit 子句内容
+     *
+     * @param int|string $rowCount 要获取的行数
+     * @param int|string $offset 起始位置，不指定则为 0
+     * @return DB
+     */
+    public function limit($rowCount, $offset = 0)
+    {
+        $this->limit = [
+            'offset' => $offset,
+            'rowCount' => $rowCount
+        ];
+        return $this;
+    }
+
+    /**
      * 获取结果集
      * select() 方法没有参数，查询条件来自于 where() 方法。
      * 示例：$db->table('user')->where('status = :status', [':status' => 'DISABLED'])->select();
@@ -762,6 +786,10 @@ class DB
     public function select($fetchMode = null)
     {
         $this->sql = $this->generateBaseSql();
+
+        if (null !== $this->limit) {
+            $this->sql .= ' LIMIT ' . $this->limit['offset'] . ', ' . $this->limit['rowCount'];
+        }
 
         $this->actualSql = $this->mapParams($this->sql, $this->combineSelectParams());
 
@@ -837,9 +865,9 @@ class DB
             $this->sql = $this->generateBaseSql();
         }
 
-        $start = ($this->page - 1) * $this->pageSize;
-        $offset = $this->pageSize;
-        $this->sql .= ' LIMIT ' . $start . ',' . $offset;
+        $offset = ($this->page - 1) * $this->pageSize;
+        $rowCount = $this->pageSize;
+        $this->sql .= ' LIMIT ' . $offset . ', ' . $rowCount;
 
         $this->actualSql = $this->mapParams($this->sql, $this->combineSelectParams());
 
