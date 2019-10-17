@@ -212,6 +212,7 @@ class DB
      *     'password' => '123456', // 连接密码，必填
      *     'dbname' => 'mydb', // 默认数据库，可选
      *     'encoding' => 'gbk', // 数据库字符编码，可选，默认为 UTF8MB4
+     *     'standAlone' => true, // 【可选】标识该实例是否使用独立的数据库连接，不与其他同配置的 DB 类共享
      *   ];
      *   $table 参数为字符串，设置表名，如果为空则不置表名
      *   $db = new DB($config);
@@ -257,6 +258,7 @@ class DB
      *     'password' => '123456', // 连接密码，必填
      *     'dbname' => 'mydb', // 默认数据库，可选
      *     'encoding' => 'gbk', // 数据库字符编码，可选，默认为 UTF8MB4
+     *     'standAlone' => true, // 【可选】标识该实例是否使用独立的数据库连接，不与其他同配置的 DB 类共享
      *   ];
      *   $db = new DB($config);
      * @param array $dbConfig 数据库连接参数（dsn），参见示例
@@ -420,6 +422,9 @@ class DB
             $key .= '_' . 'UTF8MB4';
         }
         $key .= '_' . $dbConfig['user'] . '_' . $dbConfig['password'];
+        if (isset($dbConfig['standAlone']) && true === $dbConfig['standAlone']) {
+            $key .= uniqid('_', true);
+        }
         return array($dbConfig, $key);
     }
 
