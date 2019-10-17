@@ -499,6 +499,44 @@ abstract public class AbstractExampleBaseApi
 }
 ```
 
+## 配置文件
+
+能用的配置文件旋转在`conf`目录中，文件名为`config.php`，框架提供了一个示例文件`config.php.sample`。
+
+该文件内容示例如下：
+
+```PHP
+<?php
+return [
+    'runtime' => 'development', // 运行环境，development 为开发环境，test 为测试环境，product 为生产环境
+    'db' => [ // 数据库配置
+        'dbms' => 'mysql',
+        'host' => 'localhost',
+        'port' => '3306',
+        'user' => 'root',
+        'password' => '123456',
+        'dbname' => 'web2data',
+    ],
+    'debug' => true, // 是否开启 debug，开启 debug 后，可以在提交中带有 debug 参数，返回的数据中将有 debug 项
+];
+```
+
+其中的配置数组将被读入超全局变量`$_ENV`的`config`元素中。
+
+上面示例中的变量可以这样读取：
+
+```PHP
+$_ENV['config']['runtime']; // 'development'
+$_ENV['config']['db']['host']; // 'localhost'
+```
+
+为方便使用，该配置也被定义在`CONFIG`常量中，相同的配置还可以这样读取：
+
+```PHP
+CONFIG['runtime'];
+CONFIG['db']['host'];
+```
+
 ## `DB`和`Model`
 
 框架实现了一个基于`PDO`的`DB`类，具体使用请参考`doc`目录的`DB-Class-Usage.md`文件。
@@ -560,3 +598,7 @@ class UserInfo
   }
 }
 ```
+
+在创建`DB`类实例或继承了`DB`类实例的`Model`类实例时，可以省略构造函数需要的数据库配置参数，这时`DB`类的构造函数将尝试获取`DB_CONFIG`常量作为其默认数据库配置。
+
+框架已经将配置文件中的`db`元素定义在了`DB_CONFIG`常量中，只需要将`config.php.sample`复制为`config.php`，并按照用户自己的实际服务器情况进行配置即可。

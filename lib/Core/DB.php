@@ -261,11 +261,16 @@ class DB
      *     'standAlone' => true, // 【可选】标识该实例是否使用独立的数据库连接，不与其他同配置的 DB 类共享
      *   ];
      *   $db = new DB($config);
+     *   如果不提供 $dbConfig 参数，则会试图使用 DB_CONFIG 常量
      * @param array $dbConfig 数据库连接参数（dsn），参见示例
      */
     public function __construct($dbConfig = null)
     {
-        list($dbConfig, $key) = self::generateKey($dbConfig);
+        if (null === $dbConfig && !defined('DB_CONFIG')) {
+            throw new InvalidArgumentException('未提供数据库配置', 500);
+        }
+        $dbConfig = $dbConfig !== null ? $dbConfig : DB_CONFIG;
+        $key = self::generateKey($dbConfig);
         $this->setKey($key);
         $dsn = $dbConfig['dbms'] . ':';
         $dsnParams = [];
@@ -402,7 +407,6 @@ class DB
      */
     private static function generateKey($dbConfig)
     {
-        null === $dbConfig && $dbConfig = $_ENV['config']['db_config'];
         $key = $dbConfig['dbms'];
         if (isset($dbConfig['dbname'])) {
             $key .= '_' . $dbConfig['dbname'];
@@ -425,7 +429,7 @@ class DB
         if (isset($dbConfig['standAlone']) && true === $dbConfig['standAlone']) {
             $key .= uniqid('_', true);
         }
-        return array($dbConfig, $key);
+        return $key;
     }
 
     /**
