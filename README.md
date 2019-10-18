@@ -501,7 +501,7 @@ abstract public class AbstractExampleBaseApi
 
 ## 配置文件
 
-能用的配置文件旋转在`conf`目录中，文件名为`config.php`，框架提供了一个示例文件`config.php.sample`。
+通用的配置文件放置在`conf`目录中，文件名为`config.php`，框架提供了一个示例文件`config.php.sample`。
 
 该文件内容示例如下：
 
