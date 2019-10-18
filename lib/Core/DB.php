@@ -1337,6 +1337,16 @@ class DB
     }
 
     /**
+     * 获取最后一条语句影响的行数，仅适用于 DELETE、UPDATE、INSERT 操作
+     *
+     * @return int
+     */
+    public function getRowCount()
+    {
+        return $this->sth()->rowCount();
+    }
+
+    /**
      * 设置错误信息
      *
      * @param array $error 必须包含 errorCode 和 errorInfo ，否则会出错

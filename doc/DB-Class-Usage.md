@@ -180,6 +180,8 @@ $db->fields('id, name, status');
 
 在执行完`select()`方法之后，再指定要筛选的字段和排序规则，已经没有意义了。
 
+对于`insert()`、`delete()`、`update()`方法，可以通过`getRowCount()`获得影响的行数。
+
 ## 五、构建方法与链式调用
 
 所有的构建方法均返回`DB`类实例，可用于继续调用，这种调用方式称为链式调用。
@@ -456,6 +458,8 @@ if ($db->getError() !== null) {
 }
 ```
 
+可通过`getRowCount()`方法获取受影响的行数。
+
 ### 2. getLastInsertId()
 
 方法签名：`getLastInsertId():string`。
@@ -507,6 +511,8 @@ if ($db->getError() !== null) {
 ```
 
 **删除动作无法恢复，请确保使用此函数时，带有`where`子句。**
+
+可通过`getRowCount()`方法获取受影响的行数。
 
 ### 4. update()
 
@@ -585,6 +591,8 @@ if ($db->getError() !== null) {
     echo '更新成功';
 }
 ```
+
+可通过`getRowCount()`方法获取受影响的行数。
 
 ### 5. select()
 
@@ -767,7 +775,7 @@ if (!rows) {
 
 此方法会产生一些副作用：设置当前页、统计总行数、计算总页数。这些副作用产生的结果，在调用相关方法获取相应数据时才会体现。
 
-### 3. totaRows()
+### 3. totalRows()
 
 方法签名：`totalRows():integer`。
 
@@ -1046,3 +1054,9 @@ $rows = $db->sth()->rowCount();
 请在调用了**执行方法**后，再调用`sth()`方法(在执行操作前`PDOStatement`对象还不存在)。
 
 `PDOStatemnt`的完整参考请见 [PHP 官方的 PDOStatement 文档](https://www.php.net/manual/zh/class.pdostatement.php)。
+
+### 5. getRowCount()
+
+方法签名：`getRowCount():int`。
+
+返回最后一条语句影响的行数，仅用于`delete()`、`insert()`、`update()`方法。
