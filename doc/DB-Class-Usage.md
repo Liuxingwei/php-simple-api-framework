@@ -600,7 +600,7 @@ if ($db->getError() !== null) {
 
 `select()`方法用于查询数据库。
 
-查询成功失败返回`false`，查询成功返回符合条件的行的数组。数组中的每个元素对应一行，格式受参数`$fetchMode`影响。
+查询成功失败返回`false`，查询成功返回符合条件的行的数组。数组中的每个元素对应一行，格式受参数`$fetchMode`影响。如果查询不到符合条件的结果，`select()`方法返回一个空数组。
 
 参数`$fetchMode`的可选值为`PDO::FETCH_*`系列常量之一，其值影响到返回数据的格式。参见 [PHP 官方的 PDO 文档](hhttps://www.php.net/manual/zh/pdostatement.fetch.php)。此参数可以省略，省略后的返回值格式参见[`fetchMode`](#八fetchMode)。
 
@@ -629,7 +629,7 @@ if (!rows) {
 
 `selectOne()`方法用于仅获取一行符合条件的数据。
 
-查询失败返回`false`，查询成功返回一个数组，数组格式受`$fetchMode`参数影响。
+查询失败返回`false`，查询成功返回一个数组，数组格式受`$fetchMode`参数影响。如果查询不到符合条件的结果，`selectOne()`方法的行为与`select()`方法保持一致，返回一个空数组。
 
 参数`$fetchMode`的可选值为`PDO::FETCH_*`系列常量之一，其值影响到返回数据的格式。参见 [PHP 官方的 PDO 文档](hhttps://www.php.net/manual/zh/pdostatement.fetch.php)。此参数可以省略，省略后的返回值格式参见[`fetchMode`](#八fetchMode)。
 

@@ -785,7 +785,14 @@ class DB
             $this->catchError();
             return false;
         }
-        return $this->sth()->fetch($this->getFetchMode($fetchMode));
+        $res = $this->sth()->fetch($this->getFetchMode($fetchMode));
+        if (false === $res && $this->sth()->errorCode() === '00000') {
+            $res = [];
+        } else {
+            $this->catchError();
+            return false;
+        }
+        return $res;
     }
 
     /**
