@@ -786,11 +786,13 @@ class DB
             return false;
         }
         $res = $this->sth()->fetch($this->getFetchMode($fetchMode));
-        if (false === $res && $this->sth()->errorCode() === '00000') {
-            $res = [];
-        } else {
-            $this->catchError();
-            return false;
+        if (false === $res) {
+            if ($this->sth()->errorCode() !== '00000') {
+                $this->catchError();
+                return false;
+            } else {
+                $res = [];
+            }
         }
         return $res;
     }
