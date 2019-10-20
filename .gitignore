@@ -4,3 +4,4 @@ composer.lock
 conf/config.php.bak
 conf/config.php
 .vscode/settings.json
+application/Api/Get/Test/Index.php

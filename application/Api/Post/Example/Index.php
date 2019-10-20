@@ -2,15 +2,15 @@
 
 namespace Application\Api\Post\Example;
 
-use Lib\Core\AbstractBaseApi;
+use Lib\Core\BaseApiInterface;
 use Lib\Core\ErrorCode;
 
-class Index extends AbstractBaseApi
+class Index implements BaseApiInterface
 {
-    public function run()
+    public function run(array $params)
     {
         $result = ErrorCode::OK;
         $result['description'] = "I'm a POST request.";
-        $this->responseJson($result);
+        return $result;
     }
 }

@@ -1,6 +1,8 @@
 <?php
 
 use Lib\Core\ErrorCode;
+use Lib\Core\Request;
+use Lib\Core\Response;
 use Lib\Core\SafException;
 
 global $startTime;
@@ -22,5 +24,9 @@ $className = '\\Application\\Api\\' . ucfirst(strtolower($_SERVER['REQUEST_METHO
 if (!class_exists($className) || (new ReflectionClass($className))->isAbstract() || !method_exists($className, 'run')) {
     SafException::throw(ErrorCode::mapError(ErrorCode::API_NOT_EXISTS, ['api' => $scriptPath]));
 }
+$request = new Request();
 $instance = new $className;
-$instance->run();
+$content = $instance->run($request->getParams());
+$responseType = property_exists($instance, 'responseType') ? $instance->responseType : 'json';
+$responseCode = property_exists($instance, 'errorCode') ? $instance->errorCode : null;
+Response::response($content, $responseType, $responseCode);

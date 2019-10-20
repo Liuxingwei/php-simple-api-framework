@@ -66,4 +66,9 @@ class Response
         }
         return $result;
     }
+
+    public static function response($content, $type = 'json', $errorCode = null)
+    {
+        return call_user_func(array(__CLASS__, $type), $content, $errorCode);
+    }
 }

@@ -214,10 +214,11 @@ server {
   - config.php.sample
 + lib
   + Core
-    - AbstractBaseApi.php
+    - BaseApiInterface.php
     - bootstrap.php
     - DB.php
     - ErrorCode.php
+    - Request.php
     - Response.php
     - SafException.php
 + doc
@@ -247,7 +248,7 @@ server {
 
 在`application/Api/Get`或`application/Api/Post`中根据业务需要创建一个子文件夹（也可以是多级文件夹），在其中创建一个`API`类。
 
-该类继承`Lib\Core\AbstractBaseApi`类，并实现`run()`方法。
+该类实现`Lib\Core\BaseApiInterface`接口，并实现`run()`方法，该方法签名为：`run(array $param):mixed`。
 
 例如，在`Get`文件夹创建`Example`文件夹，并在其中创建`Index.php`，文件内容如下：
 
@@ -255,21 +256,23 @@ server {
 <?php
 namespace Application\Api\Get\Example;
 
-use Lib\Core\AbstractBaseApi;
+use Lib\Core\BaseApiInterface;
 
-class Index extends AbstractBaeApi
+class Index implements BaseApiInterface
 {
-  public function run()
+  public function run(array $params)
   {
     $result = [
       'code' => 200,
       'message' => 'OK',
       'description' => "I'm a GET request.",
     ];
-    $this->responseJson($result);
+    return $resut;
   }
 }
 ```
+
+`run()`方法的参数即为`HTTP`请求的参数集合。
 
 此时，向服务器的`/example/index`发出`GET`请求，即可收到值为
 
@@ -298,18 +301,18 @@ class Index extends AbstractBaeApi
 <?php
 namespace Application\Api\Post\Example;
 
-use Lib\Core\AbstractBaseApi;
+use Lib\Core\BaseApiInterface;
 
-class Index extends AbstractBaeApi
+class Index implements BaseApiInterface
 {
-  public function run()
+  public function run(array $params)
   {
     $result = [
       'code' => 200,
       'message' => 'OK',
       'description' => "I'm a POST request.",
     ];
-    $this->responseJson($result);
+    return $result;
   }
 }
 ```
@@ -334,39 +337,19 @@ POST /user-info/create-user    =>    Application\Api\Post\UserInfo\CreateUser
 PUT /user-info/modify-user   =>    Application\Api\Put\UserInfo\ModifyUser
 ```
 
-### `responseJson()`方法
+### `run()`方法的参数
 
-`AbstractBaseApi`类的`responseJson()`方法用于以`json`格式输出数据。
+`run()`方法的`params`参数接收了与`HTTP METHOD`相对应的`request`数据。
 
-它接受两个参数，第一个参数是要输出的数据，建议以
+对于`POST`、`PUT`、`PATCH`，如果提交的`HEADER`中`Content-Type`为`application/json`的情况，接收了`json`解码后的`Request Payload`数据。
 
-```PHP
-[
-  'code' => xxxx,
-  'message' => 'xxxxxxxxxxx'
-  'data' => [
-    ...
-  ]
-]
-```
+对于`PUT`、`PATCH`的`application/x-www-form-urlencoded`，接收了（解析后的）`Form Data`数据，类似于`$_POST`的值。
 
-的格式定义输出数据。
+对于`POST`的`form-data`、`multipart/form-data`、`application/x-www-form-urlencoded`，则接收了（解析后的）`Form Data`数据。相当于`$_POST`的值。
 
-第二个参数是`HTTP`状态码，可以是`404`、`403`、`500`、`200`等值。此参数可以省略，默认值为`200`。
+对于`GET`和`DELETE`，则接收了解析后的`Query String`键值对。相当于`$_GET`的值。
 
-### `httpParams`属性
-
-`AbstractBaseApi`类的`httpParams`存储了与`HTTP METHOD`相对应的`request`数据。
-
-对于`POST`、`PUT`、`PATCH`，如果提交的`HEADER`中`Content-Type`为`application/json`的情况，存储了`json`解码后的`Request Payload`数据。
-
-对于`PUT`、`PATCH`的`application/x-www-form-urlencoded`，存储了（解析后的）`Form Data`数据，类似于`$_POST`的值。
-
-对于`POST`的`form-data`、`multipart/form-data`、`application/x-www-form-urlencoded`，则存储了（解析后的）`Form Data`数据。相当于`$_POST`的值。
-
-对于`GET`和`DELETE`，则存储了解析后的`Query String`键值对。相当于`$_GET`的值。
-
-其它情况，则直接在`httpParams`的`BODY`元素中存储了提交的`Request Payload`的原始值。
+其它情况，则直接在`params`的`BODY`元素中存储了提交的`Request Payload`的原始值。
 
 ### `ErrorCode`类
 
@@ -386,14 +369,14 @@ const HTTP_METHOD_ERROR = ['code' => 500, 'message' => '仅支持 POST 和 GET �
 <?php
 namespace Application\Api\Get\Example;
 
-use Lib\Core\AbstractBaseApi;
+use Lib\Core\BaseApiInterface;
 use Lib\Core\ErrorCode;
 
-class Index extends AbstractBaeApi
+class Index implements BaseApiInterface
 {
-  public function run()
+  public function run(array $params)
   {
-    $this->responseJson(ErrorCode::OK);
+    return ErrorCode::OK;
   }
 }
 ```
@@ -424,38 +407,40 @@ $err = ErrorCode::mapError(ErrorCode::PARAM_NOT_EXISTS, ['param' => 'username', 
 下面的代码示例了在不同条件下的不同输出并结束`API`的执行：
 
 ```PHP
-public function run()
+public function run(array $params)
 {
   if ($signinSuccess) {
-    $this->responseJson([
+    return [
       'code' => 200,
       'message' => '登录成功',
-    ]);
-    return true;
+    ];
   }
-  $this->responseJson([
+  return [
     'code' => 200,
     'message' => '登录失败',
-  ]);
+  ];
 }
 ```
 
-如果认为登录失败是一种错误，也可以在输出时指定`HTTP`错误码：
+默认的输出中，`HTTP CODE`均为`200`。
+
+如果认为登录失败是一种错误，可以定义`errorCode`的属性：
 
 ```PHP
+public $errorCode;
 public function run()
 {
   if ($signinSuccess) {
-    $this->responseJson([
+    return [
       'code' => 200,
       'message' => '登录成功',
-    ]);
-    return true;
+    ];
   }
-  $this->responseJson([
+  $this->errorCode = '403';
+  return [
     'code' => 403,
     'message' => '登录失败',
-  ], 403);
+  ];
 }
 ```
 

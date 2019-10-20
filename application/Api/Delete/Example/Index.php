@@ -2,15 +2,15 @@
 
 namespace Application\Api\Delete\Example;
 
-use Lib\Core\AbstractBaseApi;
+use Lib\Core\BaseApiInterface;
 use Lib\Core\ErrorCode;
 
-class Index extends AbstractBaseApi
+class Index implements BaseApiInterface
 {
-    public function run()
+    public function run(array $request)
     {
         $result = ErrorCode::OK;
         $result['description'] = "I'm a DELETE request.";
-        $this->responseJson($result);
+        return $result;
     }
 }
