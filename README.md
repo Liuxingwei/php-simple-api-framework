@@ -428,7 +428,7 @@ public function run(array $params)
 
 ```PHP
 public $errorCode;
-public function run()
+public function run(array $params)
 {
   if ($signinSuccess) {
     return [
@@ -447,7 +447,7 @@ public function run()
 如果定义的`code`和`HTTP`错误码相同，还可以使用`SafException`类的`throw`静态方法抛异常：
 
 ```PHP
-public function run()
+public function run(array $params)
 {
   if (!$signinSuccess) {
     SafException::throw([
@@ -463,26 +463,6 @@ public function run()
 ```
 
 这两段代码的输出是一样的。
-
-### `AbstractBaseApi`类的继承和初始化
-
-有时候，可能某些模块的`API`会有共同的特性，这时，可以定义一个继承`AbstractBaseApi`的类，在其中定义共有特性，供这些`API`类继承。
-
-这些父类可以定义在`application`的其他目录，也可以放在`application\Api`目录的子目录中。不过放在`Api`目录（或其子目录）时，最好将其定义为`抽象类`，以免被当做普通`API`调用。
-
-有些模块会有共通的初始化行为，可以将其定义在`init()`方法中，这个方法是定义在`AbstractBaseApi`类中的，它会在`API`类实例化时被自动调用。在定义`init()`方法时，应该在其第一行调用父类的`init()`，以实现父类中定义的初始化行为（除非你有意要跳过父类的初始化）。
-
-```PHP
-namespace Application\Api\Get\Example;
-abstract public class AbstractExampleBaseApi
-{
-  protected function init()
-  {
-    parent::init();
-    ......
-  }
-}
-```
 
 ## 配置文件
 
