@@ -1,0 +1,9 @@
+<?php
+
+use Lib\Core\DB;
+
+return [
+    'second_db' => function () {
+        return new DB(CONFIG['second_db']);
+    }
+];

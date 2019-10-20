@@ -1,5 +1,6 @@
 <?php
 
+use DI\ContainerBuilder;
 use Lib\Core\ErrorCode;
 use Lib\Core\Request;
 use Lib\Core\Response;
@@ -25,7 +26,12 @@ if (!class_exists($className) || (new ReflectionClass($className))->isAbstract()
     SafException::throw(ErrorCode::mapError(ErrorCode::API_NOT_EXISTS, ['api' => $scriptPath]));
 }
 $request = new Request();
-$instance = new $className;
+$containerBuilder = new ContainerBuilder();
+$containerBuilder->useAnnotations(true);
+$diConfigFile = isset(CONFIG['di_config']) ? CONFIG['di_config'] : dirname(__DIR__) . '/conf/di_config.php';
+file_exists($diConfigFile) && $containerBuilder->addDefinitions($diConfigFile);
+$container = $containerBuilder->build();
+$instance = $container->get($className);
 $content = $instance->run($request->getParams());
 $responseType = property_exists($instance, 'responseType') ? $instance->responseType : 'json';
 $responseCode = property_exists($instance, 'errorCode') ? $instance->errorCode : null;

@@ -567,3 +567,11 @@ class UserInfo
 在创建`DB`类实例或继承了`DB`类实例的`Model`类实例时，可以省略构造函数需要的数据库配置参数，这时`DB`类的构造函数将尝试获取`DB_CONFIG`常量作为其默认数据库配置。
 
 框架已经将配置文件中的`db`元素定义在了`DB_CONFIG`常量中，只需要将`config.php.sample`复制为`config.php`，并按照用户自己的实际服务器情况进行配置即可。
+
+## 依赖注入支持
+
+框架提供了对`PHP-DI`的支持，默认的配置文件是`conf/di_config.php`，不过可以通过系统配置文件`conf/config.php`中的`di_config`项来修改。
+
+框架在`conf`目录放置了一个依赖注入配置的示例文件`conf/di_config.php.sample`。
+
+有关`PHP-DI`的详细使用请查阅[PHP-DI 文档](http://php-di.org/doc/)。

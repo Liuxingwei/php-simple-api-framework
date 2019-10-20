@@ -12,7 +12,9 @@
         "php": ">=5.6.0",
         "ext-pdo": "*",
         "ext-json": "*",
-        "ext-mbstring": "*"
+        "ext-mbstring": "*",
+        "php-di/php-di": "^6.0",
+        "doctrine/annotations": "^1.8"
     },
     "autoload": {
         "psr-4": {
