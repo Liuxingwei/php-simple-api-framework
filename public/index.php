@@ -1,6 +1,7 @@
 <?php
 
 use DI\ContainerBuilder;
+use Doctrine\Common\Annotations\SimpleAnnotationReader;
 use Lib\Core\ErrorCode;
 use Lib\Core\Request;
 use Lib\Core\Response;
@@ -26,6 +27,11 @@ if (!class_exists($className) || (new ReflectionClass($className))->isAbstract()
     SafException::throw(ErrorCode::mapError(ErrorCode::API_NOT_EXISTS, ['api' => $scriptPath]));
 }
 $request = new Request();
+$annotationReader = new SimpleAnnotationReader();
+$annotationReader->addNamespace('Lib\Validations');
+$reflClass = new ReflectionClass($className);
+$runMethod = $reflClass->getMethod('run');
+$annotations = $annotationReader->getMethodAnnotations($runMethod);
 $containerBuilder = new ContainerBuilder();
 $containerBuilder->useAnnotations(true);
 $diConfigFile = isset(CONFIG['di_config']) ? CONFIG['di_config'] : dirname(__DIR__) . '/conf/di_config.php';
