@@ -6,8 +6,9 @@ if (file_exists($configFile)) {
 } else {
     $_ENV['config'] = [];
 }
-defined('CONFIG') or define('CONFIG', $_ENV['config']);
-defined('DB_CONFIG') or (isset($_ENV['config']['db']) and define('DB_CONFIG', $_ENV['config']['db']));
+defined('CONFIG') || define('CONFIG', $_ENV['config']);
+defined('DB_CONFIG') || (isset(CONFIG['db']) && define('DB_CONFIG', CONFIG['db']));
+defined('MODEL_NAMESPACE') || (isset(CONFIG['model_namespace']) && define('MODEL_NAMESPACE', CONFIG['model_namespace']));
 if (isset($_ENV['config']['runtime']) && $_ENV['config']['runtime'] != 'product') {
     header("Access-Control-Allow-Origin: http://localhost:8080");
     header("Access-Control-Allow-Methods: POST, GET, OPTIONS, PUT, DELETE");

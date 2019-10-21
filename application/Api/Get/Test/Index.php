@@ -5,7 +5,6 @@ namespace Application\Api\Get\Test;
 use Lib\Core\BaseApiInterface;
 use Lib\Core\DB;
 use Lib\Core\ErrorCode;
-use Application\Validation;
 
 class Index implements BaseApiInterface
 {

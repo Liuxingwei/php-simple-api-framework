@@ -252,7 +252,7 @@ class DB
         }
         if ($table) {
             $class = self::tableName2ClassName($table);
-            if (class_exists($class)) {
+            if (false !== $class && class_exists($class)) {
                 return new $class($dbConfig);
             } else {
                 $db = new DB($dbConfig);
@@ -416,9 +416,13 @@ class DB
 
     public static function tableName2ClassName($tableName)
     {
-        return '\\Model\\' . ucfirst(preg_replace_callback('|_(.)|', static function ($match) {
-            return strtoupper($match[1]);
-        }, $tableName));
+        if (MODEL_NAMESPACE) {
+            return MODEL_NAMESPACE . ucfirst(preg_replace_callback('|_(.)|', static function ($match) {
+                return strtoupper($match[1]);
+            }, $tableName));
+        } else {
+            return false;
+        }
     }
 
     /**

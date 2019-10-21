@@ -100,7 +100,7 @@ $config = [
 
 如果省略`$dbConfig`参数，则使用系统默认的配置。
 
-如果有表名参数，则会尝试实例化`\Model\TableName`实例，否则初始化`DB`类，并调用其`table()`方法初始化表名，并返回此实例。
+如果有表名参数，且定义了`MODEL_NAMESPACE`常量，则会尝试实例化该命名空间下的`TableName`实例，否则初始化`DB`类，并调用其`table()`方法初始化表名，并返回此实例。
 
 ```PHP
 $db = DB::getInstance('user');
