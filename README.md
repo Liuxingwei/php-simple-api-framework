@@ -506,7 +506,9 @@ CONFIG['db']['host'];
 
 框架实现了一个基于`PDO`的`DB`类，具体使用请参考`doc`目录的`DB-Class-Usage.md`文件。
 
-也可以自定义`Model`类，直接继承`DB`类，建议将`Model`类定义在`application\Model`命名空间中，可以不用修改`composer.json`的自动加载定义。
+可以自定义`Model`类，直接继承`DB`类，建议将`Model`类定义在`Application\Model`命名空间中，仅需在`config.php`指定`model_namespace`参数，使其指向`Application\Model`，可以不用修改`composer.json`的自动加载定义。
+
+也可以修改该参数指向其它命名空间，并在该命名空间下定义`Model`类。
 
 ```PHP
 // application/Model/User.php
