@@ -31,7 +31,7 @@ class Request
                 $this->httpParams[$kv[0]] = $kv[1];
             });
         }
-        $this->httpParams['BODY'] = file_get_contents('php://input');
+        $this->httpParams['__*__ORIGIN_BODY__*__'] = file_get_contents('php://input');
         return true;
     }
 
