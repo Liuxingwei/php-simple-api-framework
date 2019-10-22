@@ -5,6 +5,7 @@ namespace Application\Api\Get\Test;
 use Lib\Core\BaseApiInterface;
 use Lib\Core\DB;
 use Lib\Core\ErrorCode;
+use Lib\Validations\Required;
 
 class Index implements BaseApiInterface
 {
@@ -49,18 +50,17 @@ class Index implements BaseApiInterface
     /**
      * Undocumented function
      *
-     * @Required({"abc", "def"})
+     * @Required({"user_id", "user_name"})
      * @param array $request
      * @return void
      */
     public function run(array $request)
     {
-        $this->db->table('t_user');
-        $res = $this->db->where('user_id = 1')
+        $this->db->table('user');
+        $res = $this->db->where('id = 1')
             ->selectOne();
-        $this->secondDb->table('users');
-        $user = $this->secondDb->where('user_id = :user_id', [':user_id' => 'admin'])
-            ->selectOne();
+        $this->secondDb->table('task_user701_step10002_prod');
+        $user = $this->secondDb->select();
         $result = ErrorCode::OK;
         $result['data'] = [
             'user_info' => $res,
