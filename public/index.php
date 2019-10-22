@@ -35,7 +35,11 @@ $reflClass = new ReflectionClass($className);
 $runMethod = $reflClass->getMethod('run');
 $annotations = $annotationReader->getMethodAnnotations($runMethod);
 foreach ($annotations as $annotation) {
-    $annotation->check($request->getParams());
+    if (false === $annotation->check($request->getParams())) {
+        $error = ErrorCode::PARAM_ERROR;
+        $error['message'] = $annotation->getError()->message;
+        SafException::throw($error);
+    }
 }
 AnnotationRegistry::reset();
 $containerBuilder = new ContainerBuilder();

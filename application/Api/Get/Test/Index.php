@@ -50,7 +50,7 @@ class Index implements BaseApiInterface
     /**
      * Undocumented function
      *
-     * @Required({"user_id", "user_name"})
+     * @Required("user_id")
      * @param array $request
      * @return void
      */
