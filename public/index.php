@@ -36,6 +36,11 @@ $request = new Request();
 AnnotationRegistry::registerLoader('class_exists');
 $annotationReader = new SimpleAnnotationReader();
 $annotationReader->addNamespace('Lib\Validations');
+if (isset(CONFIG['validation_namespaces'])) {
+    foreach (CONFIG['validation_namespaces'] as $validationNamespace) {
+        $annotationReader->addNamespace($validationNamespace);
+    }
+}
 $reflClass = new ReflectionClass($className);
 $runMethod = $reflClass->getMethod('run');
 $annotations = $annotationReader->getMethodAnnotations($runMethod);
