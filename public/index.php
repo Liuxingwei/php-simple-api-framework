@@ -11,6 +11,8 @@ use Lib\Core\SafException;
 global $startTime;
 $startTime = floor(microtime(true) * 1000);
 require_once dirname(__DIR__) . '/lib/Core/bootstrap.php';
+
+/** API 路由开始 */
 if (!isset($_SERVER['PATH_INFO'])) {
     echo 'Please access detail API.';
     exit(0);
@@ -27,6 +29,9 @@ $className = '\\Application\\Api\\' . ucfirst(strtolower($_SERVER['REQUEST_METHO
 if (!class_exists($className) || (new ReflectionClass($className))->isAbstract() || !method_exists($className, 'run')) {
     SafException::throw(ErrorCode::mapError(ErrorCode::API_NOT_EXISTS, ['api' => $scriptPath]));
 }
+/** API 路由结束 */
+
+/** 参数校验开始 */
 $request = new Request();
 AnnotationRegistry::registerLoader('class_exists');
 $annotationReader = new SimpleAnnotationReader();
@@ -42,6 +47,9 @@ foreach ($annotations as $annotation) {
     }
 }
 AnnotationRegistry::reset();
+/** 参数校验结束 */
+
+/** API 调用开始 */
 $containerBuilder = new ContainerBuilder();
 $containerBuilder->useAnnotations(true);
 $diConfigFile = isset(CONFIG['di_config']) ? CONFIG['di_config'] : dirname(__DIR__) . '/conf/di_config.php';
@@ -52,3 +60,4 @@ $content = $instance->run($request->getParams());
 $responseType = property_exists($instance, 'responseType') ? $instance->responseType : 'json';
 $responseCode = property_exists($instance, 'errorCode') ? $instance->errorCode : null;
 Response::response($content, $responseType, $responseCode);
+/** API 调用结束 */
