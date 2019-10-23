@@ -1,10 +1,7 @@
 <?php
 
 use DI\ContainerBuilder;
-use Doctrine\Common\Annotations\AnnotationRegistry;
-use Doctrine\Common\Annotations\SimpleAnnotationReader;
 use Lib\Core\ErrorCode;
-use Lib\Core\Request;
 use Lib\Core\Response;
 use Lib\Core\SafException;
 
@@ -31,10 +28,15 @@ if (!class_exists($className) || (new ReflectionClass($className))->isAbstract()
 }
 /** API 路由结束 */
 
+$containerBuilder = new ContainerBuilder();
+$containerBuilder->useAnnotations(true);
+$diConfigFile = isset(CONFIG['di_config']) ? CONFIG['di_config'] : dirname(__DIR__) . '/conf/di_config.php';
+file_exists($diConfigFile) && $containerBuilder->addDefinitions($diConfigFile);
+$container = $containerBuilder->build();
+
 /** 参数校验开始 */
-$request = new Request();
-AnnotationRegistry::registerLoader('class_exists');
-$annotationReader = new SimpleAnnotationReader();
+$request = $container->get('Lib\Core\Request');
+$annotationReader = $container->get('Doctrine\Common\Annotations\SimpleAnnotationReader');
 $annotationReader->addNamespace('Lib\Validations');
 if (isset(CONFIG['validation_namespaces'])) {
     foreach (CONFIG['validation_namespaces'] as $validationNamespace) {
@@ -51,15 +53,10 @@ foreach ($annotations as $annotation) {
         SafException::throw($error);
     }
 }
-AnnotationRegistry::reset();
 /** 参数校验结束 */
 
 /** API 调用开始 */
-$containerBuilder = new ContainerBuilder();
-$containerBuilder->useAnnotations(true);
-$diConfigFile = isset(CONFIG['di_config']) ? CONFIG['di_config'] : dirname(__DIR__) . '/conf/di_config.php';
-file_exists($diConfigFile) && $containerBuilder->addDefinitions($diConfigFile);
-$container = $containerBuilder->build();
+
 $instance = $container->get($className);
 $content = $instance->run($request->getParams());
 $responseType = property_exists($instance, 'responseType') ? $instance->responseType : 'json';
