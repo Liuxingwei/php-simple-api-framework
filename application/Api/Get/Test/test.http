@@ -1,4 +1,4 @@
 ###
 GET http://localhost:3000/test/index
 ?user_id=3
-&user_name=9
+&user_name=9.1

@@ -51,7 +51,7 @@ class Index implements BaseApiInterface
      * Undocumented function
      *
      * @Required("user_id")
-     * @Required("user_name")
+     * @Limit("user_name", min=4, max=9.1)
      * @param array $request
      * @return void
      */
