@@ -1,8 +1,9 @@
 <?php
-require_once __DIR__ . '/../../vendor/autoload.php';
-$configFile = __DIR__ . '/../../conf/config.php';
+defined('ROOT') || define('ROOT', dirname(dirname(__DIR__)));
+require_once ROOT . '/vendor/autoload.php';
+$configFile = ROOT . '/conf/config.php';
 if (file_exists($configFile)) {
-    $_ENV['config'] = include __DIR__ . '/../../conf/config.php';
+    $_ENV['config'] = include $configFile;
 } else {
     $_ENV['config'] = [];
 }

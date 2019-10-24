@@ -577,3 +577,5 @@ class UserInfo
 框架在`conf`目录放置了一个依赖注入配置的示例文件`conf/di_config.php.sample`。
 
 有关`PHP-DI`的详细使用请查阅[PHP-DI 文档](http://php-di.org/doc/)。
+
+## 虚拟子目录支持
