@@ -11,6 +11,7 @@ class ErrorCode
     const API_NOT_EXISTS = ['code' => 404, 'message' => 'API {{:api}} 不存在'];
     const HTTP_METHOD_ERROR = ['code' => 500, 'message' => '仅支持 POST 和 GET 提交'];
     const PARAM_ERROR = ['code' => 400, 'message' => '参数错误'];
+    const API_PATH_ERROR = ['code' => 500, 'message' => 'API 路径错误'];
 
     /**
      * 替换消息字符串中的参数

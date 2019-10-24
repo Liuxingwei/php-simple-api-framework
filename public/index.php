@@ -16,11 +16,25 @@ if (!isset($_SERVER['PATH_INFO'])) {
 }
 $scriptPath = $_SERVER['PATH_INFO'];
 $scriptArray = explode('/', $scriptPath);
+array_shift($scriptArray);
+
+if (isset(CONFIG['api_path'])) {
+    $apiPath = explode('/', CONFIG['api_path']);
+    for ($i = 0; $i < count($apiPath); $i++) {
+        if (empty($apiPath[$i])) {
+            continue;
+        }
+        if (strtolower($apiPath[$i]) != strtolower($scriptArray[0])) {
+            SafException::throw(ErrorCode::API_PATH_ERROR);
+        }
+        array_shift($scriptArray);
+    }
+}
 
 foreach ($scriptArray as $key => $value) {
     $scriptArray[$key] = ucfirst($value);
 }
-$className = '\\Application\\Api\\' . ucfirst(strtolower($_SERVER['REQUEST_METHOD'])) . preg_replace_callback('|-(.)|', static function ($match) {
+$className = '\\Application\\Api\\' . ucfirst(strtolower($_SERVER['REQUEST_METHOD'])) . '\\' . preg_replace_callback('|-(.)|', static function ($match) {
     return strtoupper($match[1]);
 }, implode('\\', $scriptArray));
 if (!class_exists($className) || (new ReflectionClass($className))->isAbstract() || !method_exists($className, 'run')) {
