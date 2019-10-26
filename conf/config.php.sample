@@ -4,12 +4,22 @@ return [
     'api_path' => '/Api',
     'db' => [ // 数据库配置
         'dbms' => 'mysql',
-        'host' => 'localhost',
+        'host' => '127.0.0.1',
         'port' => '3306',
         'user' => 'root',
         'password' => '123456',
-        dbname' => 'xxxxxx',
+        'dbname' => 'sampledb',
     ],
-    'model_namespace' => 'Application\\Model\\',
+    'second_db' => [
+        'dbms' => 'mysql',
+        'host' => '127.0.0.1',
+        'port' => '3306',
+        'user' => 'root',
+        'password' => '123456',
+        'dbname' => 'jol',
+    ],
+    'di_config' => [
+        __DIR__ . '/di_config.php',
+    ],
     'debug' => true, // 是否开启 debug，开启 debug 后，可以在提交中带有 debug 参数，返回的数据中将有 debug 项
 ];

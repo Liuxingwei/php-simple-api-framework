@@ -41,8 +41,17 @@ class App
     {
         $containerBuilder = new ContainerBuilder();
         $containerBuilder->useAnnotations(true);
-        $diConfigFile = isset(CONFIG['di_config']) ? CONFIG['di_config'] : dirname(__DIR__) . '/conf/di_config.php';
-        file_exists($diConfigFile) && $containerBuilder->addDefinitions($diConfigFile);
+        file_exists(ROOT . '/conf/di_config.php') && $containerBuilder->addDefinitions(ROOT . '/conf/di_config.php');
+        if (isset(CONFIG['di_config'])) {
+            if (is_string(CONFIG['di_config'])) {
+                $containerBuilder->addDefinitions(CONFIG['di_config']);
+            }
+            if (is_array(CONFIG['di_config'])) {
+                foreach (CONFIG['di_config'] as $definition) {
+                    $containerBuilder->addDefinitions($definition);
+                }
+            }
+        }
         self::$container = $containerBuilder->build();
     }
 
@@ -97,7 +106,7 @@ class App
         self::$className = '\\Application\\Api\\' . ucfirst(strtolower($_SERVER['REQUEST_METHOD'])) . '\\' . preg_replace_callback('|-(.)|', static function ($match) {
             return strtoupper($match[1]);
         }, implode('\\', $scriptArray));
-        if (!class_exists(self::$className) || (new ReflectionClass(self::$className))->isAbstract() || !method_exists(self::$className, 'run')) {
+        if (!class_exists(self::$className) || (new ReflectionClass(self::$className))->isAbstract() || !is_subclass_of(self::$className, 'Lib\Core\BaseApiInterface')) {
             SafException::throw(ErrorCode::mapError(ErrorCode::API_NOT_EXISTS, ['api' => $scriptPath]));
         }
     }
