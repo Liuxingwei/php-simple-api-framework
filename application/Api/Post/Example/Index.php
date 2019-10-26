@@ -2,10 +2,10 @@
 
 namespace Application\Api\Post\Example;
 
-use Lib\Core\BaseApiInterface;
 use Lib\Core\ErrorCode;
+use Lib\Core\Interfaces\BaseApi;
 
-class Index implements BaseApiInterface
+class Index implements BaseApi
 {
     public function run(array $params)
     {

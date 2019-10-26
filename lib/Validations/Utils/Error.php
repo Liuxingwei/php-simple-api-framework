@@ -1,6 +1,6 @@
 <?php
 
-namespace Lib\Validations;
+namespace Lib\Validations\Utils;
 
 use InvalidArgumentException;
 

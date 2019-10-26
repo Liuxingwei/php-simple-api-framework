@@ -2,14 +2,16 @@
 
 namespace Lib\Validations;
 
+use Lib\Validations\Classes\AbstractValidation;
+
 /**
  * @Annotation
  * @Target({"METHOD"})
  */
-class Length implements ValidationInterface
+class Length extends AbstractValidation
 {
     /**
-     * 
+     *
      * @Required()
      * @var string
      */
@@ -29,20 +31,14 @@ class Length implements ValidationInterface
     public $min;
 
     /**
-     * 错误消息
+     * 校验方法
      *
-     * @var Error
+     * @param array $params
+     * @return bool
      */
-    private $error;
-
-    public function __construct()
+    public function check(array $params)
     {
-        $this->error = new Error();
-    }
-
-    public function check($params)
-    {
-        if (key_exists($this->value, $params)) { 
+        if (key_exists($this->value, $params)) {
             $value = $params[$this->value];
             $len = mb_strlen($value);
             if (null !== $this->max && $len > $this->max) {
@@ -57,10 +53,5 @@ class Length implements ValidationInterface
             }
         }
         return true;
-    }
-
-    public function getError()
-    {
-        return $this->error;
     }
 }

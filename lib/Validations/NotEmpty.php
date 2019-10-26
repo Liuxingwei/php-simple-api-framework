@@ -2,35 +2,31 @@
 
 namespace Lib\Validations;
 
+use Lib\Validations\Classes\AbstractValidation;
+
 /**
  * 校验参数不得为空
- * 
+ *
  * @Annotation
  * @Target({"METHOD"})
  */
-class NotEmpty implements ValidationInterface
+class NotEmpty extends AbstractValidation
 {
     /**
      * 待验证的参数名
-     * 
+     *
      * @Required()
      * @var string
      */
     public $value;
 
     /**
-     * 错误消息
+     * 校验方法
      *
-     * @var Error
+     * @param array $params
+     * @return bool
      */
-    private $error;
-
-    public function __construct()
-    {
-        $this->error = new Error();
-    }
-
-    public function check($params)
+    public function check(array $params)
     {
         if (key_exists($this->value, $params) && empty($params[$this->value])) {
             $this->error->code = '10002';
@@ -39,10 +35,5 @@ class NotEmpty implements ValidationInterface
         }
 
         return true;
-    }
-
-    public function getError()
-    {
-        return $this->error;
     }
 }

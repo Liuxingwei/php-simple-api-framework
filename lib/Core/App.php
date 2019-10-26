@@ -106,7 +106,7 @@ class App
         self::$className = '\\Application\\Api\\' . ucfirst(strtolower($_SERVER['REQUEST_METHOD'])) . '\\' . preg_replace_callback('|-(.)|', static function ($match) {
             return strtoupper($match[1]);
         }, implode('\\', $scriptArray));
-        if (!class_exists(self::$className) || (new ReflectionClass(self::$className))->isAbstract() || !is_subclass_of(self::$className, 'Lib\Core\BaseApiInterface')) {
+        if (!class_exists(self::$className) || (new ReflectionClass(self::$className))->isAbstract() || !is_subclass_of(self::$className, 'Lib\Core\Interfaces\BaseApi')) {
             SafException::throw(ErrorCode::mapError(ErrorCode::API_NOT_EXISTS, ['api' => $scriptPath]));
         }
     }

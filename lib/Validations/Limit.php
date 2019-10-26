@@ -3,15 +3,16 @@
 namespace Lib\Validations;
 
 use Doctrine\Common\Annotations\AnnotationException;
+use Lib\Validations\Classes\AbstractValidation;
 
 /**
  * @Annotation
  * @Target({"METHOD"})
  */
-class Limit implements ValidationInterface
+class Limit extends AbstractValidation
 {
     /**
-     * 
+     *
      * @Required()
      * @var string
      */
@@ -29,18 +30,12 @@ class Limit implements ValidationInterface
     public $min;
 
     /**
-     * 错误消息
+     * 校验方法
      *
-     * @var Error
+     * @param array $params
+     * @return bool
      */
-    private $error;
-
-    public function __construct()
-    {
-        $this->error = new Error();
-    }
-
-    public function check($params)
+    public function check(array $params)
     {
         if (key_exists($this->value, $params)) {
             $value = floatval($params[$this->value]);
@@ -61,10 +56,5 @@ class Limit implements ValidationInterface
             }
         }
         return true;
-    }
-
-    public function getError()
-    {
-        return $this->error;
     }
 }

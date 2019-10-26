@@ -2,12 +2,12 @@
 
 namespace Application\Api\Get\Test;
 
-use Lib\Core\BaseApiInterface;
 use Lib\Core\DB;
 use Lib\Core\ErrorCode;
+use Lib\Core\Interfaces\BaseApi;
 use Lib\Validations\Required;
 
-class Index implements BaseApiInterface
+class Index implements BaseApi
 {
     /**
      * 默认数据库
