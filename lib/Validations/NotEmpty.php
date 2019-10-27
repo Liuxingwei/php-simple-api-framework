@@ -2,8 +2,6 @@
 
 namespace Lib\Validations;
 
-use Lib\Validations\Classes\AbstractValidation;
-
 /**
  * 校验参数不得为空
  *

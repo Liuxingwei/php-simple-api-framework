@@ -1,8 +1,8 @@
 <?php
 
-namespace Lib\Core\Interfaces;
+namespace Lib\Core;
 
-interface BaseApi
+interface BaseApiInterface
 {
     public function run(array $request);
 }

@@ -2,12 +2,14 @@
 
 namespace Application\Api\Get\Test;
 
+use Application\Model\User;
+use Lib\Core\BaseApiInterface;
+use Lib\Core\BaseModel;
 use Lib\Core\DB;
 use Lib\Core\ErrorCode;
-use Lib\Core\Interfaces\BaseApi;
 use Lib\Validations\Required;
 
-class Index implements BaseApi
+class Index implements BaseApiInterface
 {
     /**
      * 默认数据库
@@ -22,6 +24,20 @@ class Index implements BaseApi
      * @var DB
      */
     private $secondDb;
+
+    /**
+     * Mode 示例
+     *
+     * @var BaseModel
+     */
+    private $model;
+
+    /**
+     * User Model 示例
+     *
+     * @var User
+     */
+    private $user;
 
     /**
      * 设置数据库
@@ -48,7 +64,31 @@ class Index implements BaseApi
     }
 
     /**
-     * Undocumented function
+     * 初始化 Model
+     *
+     * @Inject
+     * @param BaseModel $model
+     * @return void
+     */
+    public function setModel(BaseModel $model)
+    {
+        $this->model = $model;
+    }
+
+    /**
+     * 初始化 User Model
+     *
+     * @Inject
+     * @param User $user
+     * @return void
+     */
+    public function setUser(User $user)
+    {
+        $this->user = $user;
+    }
+
+    /**
+     * 业务运行方法
      *
      * @Required("user_id")
      * @Limit("user_name", min=4, max=9.1)
@@ -57,6 +97,8 @@ class Index implements BaseApi
      */
     public function run(array $request)
     {
+
+        $this->model->table('user');
         $this->db->table('user');
         $res = $this->db->where('id = 1')
             ->selectOne();

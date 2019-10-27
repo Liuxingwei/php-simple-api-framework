@@ -2,9 +2,6 @@
 
 namespace Lib\Validations;
 
-use Doctrine\Common\Annotations\AnnotationException;
-use Lib\Validations\Classes\AbstractValidation;
-
 /**
  * @Annotation
  * @Target({"METHOD"})

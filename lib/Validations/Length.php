@@ -2,8 +2,6 @@
 
 namespace Lib\Validations;
 
-use Lib\Validations\Classes\AbstractValidation;
-
 /**
  * @Annotation
  * @Target({"METHOD"})

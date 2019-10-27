@@ -319,7 +319,7 @@ class DB
         }
         $this->dbh = self::$connections[$this->getKey()];
 
-        if ('Lib\DB' !== ($className = get_class($this)) && is_null($this->table)) {
+        if ('Lib\Core\DB' !== ($className = get_class($this)) && is_null($this->table)) {
             $this->table($this->className2TableName($className));
         }
     }

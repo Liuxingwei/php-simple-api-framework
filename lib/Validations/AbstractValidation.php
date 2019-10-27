@@ -1,6 +1,6 @@
 <?php
 
-namespace Lib\Validations\Classes;
+namespace Lib\Validations;
 
 use Lib\Validations\Utils\Error;
 
