@@ -2,7 +2,7 @@
 
 namespace Application\Api\Get\Test;
 
-use Application\Model\User;
+use Application\Model\SafExample;
 use Lib\Core\BaseApiInterface;
 use Lib\Core\BaseModel;
 use Lib\Core\DB;
@@ -33,11 +33,11 @@ class Index implements BaseApiInterface
     private $model;
 
     /**
-     * User Model 示例
+     * Model 示例
      *
-     * @var User
+     * @var SafExample
      */
-    private $user;
+    private $safExample;
 
     /**
      * 设置数据库
@@ -76,15 +76,15 @@ class Index implements BaseApiInterface
     }
 
     /**
-     * 初始化 User Model
+     * 初始化示例 Model
      *
      * @Inject
-     * @param User $user
+     * @param SafExample $safExample
      * @return void
      */
-    public function setUser(User $user)
+    public function setSafExample(SafExample $user)
     {
-        $this->user = $user;
+        $this->safExample = $user;
     }
 
     /**

@@ -5,7 +5,7 @@ namespace Application\Model;
 use Lib\Core\BaseModel;
 use Lib\Core\DB;
 
-class User extends BaseModel
+class SafExample extends BaseModel
 {
     /**
      * 初始化数据库
@@ -17,6 +17,6 @@ class User extends BaseModel
     public function __construct(DB $db)
     {
         parent::__construct($db);
-        $this->table('user');
+        $this->table('saf_example');
     }
 }
