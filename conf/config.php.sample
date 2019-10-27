@@ -18,7 +18,7 @@ return [
         'password' => '123456',
         'dbname' => 'jol',
     ],
-    'di_config' => [
+    'di_config' => [ // PHP-DI 定义配置，可以是定义文件名，也可以是定义文件名数组
         __DIR__ . '/di_config.php',
     ],
     'debug' => true, // 是否开启 debug，开启 debug 后，可以在提交中带有 debug 参数，返回的数据中将有 debug 项

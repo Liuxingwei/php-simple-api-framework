@@ -1,15 +1,11 @@
 
 # SAF 框架使用说明
 
-本文档为`Markdown`格式，如果使用`VSCode`，可以安装`Markdown Preview Enhanced`预览。
-
-该插件使用方法见插件的自说明文档。
-
 ## 零、概述
 
 `SAF（Simple Api Framework）`是一个极简单的`PHP` `API`开发框架，适用于前后端分离架构的`web`项目，作为后端`PHP` `API`服务的框架。
 
-说其极简，一方面是因为它只有`5`个核心类和几个支持文件，另一方面是因为它只支持有限的场景，当然，也是说它非常易于使用。
+说其极简，一方面是因为它只有很少的核心类和几个支持文件，另一方面是因为它只支持有限的场景，当然，也是说它非常易于使用。
 
 `SAF`没有`Beautiful URL`路由，`GET`请求的参数是通过形如`name=zhangsan&sex=male`的`QueryString`参数传递的。
 
@@ -212,8 +208,10 @@ server {
         - Index.php
 + conf
   - config.php.sample
+  - di_config.php.sample
 + lib
   + Core
+    - App.php
     - BaseApiInterface.php
     - bootstrap.php
     - DB.php
@@ -221,6 +219,13 @@ server {
     - Request.php
     - Response.php
     - SafException.php
+  + Validations
+    - Error.php
+    - Length.php
+    - Limit.php
+    - NotEmpty.php
+    - Required.php
+    - ValidationInterface.php
 + doc
   - DB-Class-Usage.md
 + public
@@ -228,15 +233,14 @@ server {
   - index.html
   - index.php
 + vendor
+  + bin
   + composer
-    - autoload_classmap.php
-    - autoload_namespaces.php
-    - autoload_psr4.php
-    - autoload_real.php
-    - autoload_static.php
-    - ClassLoader.php
-    - installed.json
-    - LICENSE
+  + doctrine
+  + jeremeamia
+  + nikic
+  + php-di
+  + psr
+  + symfony
   - autoload.php
 - .gitignore
 - composer.json
@@ -248,7 +252,7 @@ server {
 
 在`application/Api/Get`或`application/Api/Post`中根据业务需要创建一个子文件夹（也可以是多级文件夹），在其中创建一个`API`类。
 
-该类实现`Lib\Core\BaseApiInterface`接口，并实现`run()`方法，该方法签名为：`run(array $param):mixed`。
+该类实现`Lib\Core\Interfaces\BaseApi`接口，并实现`run()`方法，该方法签名为：`run(array $param):mixed`。
 
 例如，在`Get`文件夹创建`Example`文件夹，并在其中创建`Index.php`，文件内容如下：
 
@@ -256,9 +260,9 @@ server {
 <?php
 namespace Application\Api\Get\Example;
 
-use Lib\Core\BaseApiInterface;
+use Lib\Core\Interfaces\BaseApi;
 
-class Index implements BaseApiInterface
+class Index implements BaseApi
 {
   public function run(array $params)
   {
@@ -301,9 +305,9 @@ class Index implements BaseApiInterface
 <?php
 namespace Application\Api\Post\Example;
 
-use Lib\Core\BaseApiInterface;
+use Lib\Core\Interfaces\BaseApi;
 
-class Index implements BaseApiInterface
+class Index implements BaseApi
 {
   public function run(array $params)
   {
@@ -369,10 +373,10 @@ const HTTP_METHOD_ERROR = ['code' => 500, 'message' => '仅支持 POST 和 GET �
 <?php
 namespace Application\Api\Get\Example;
 
-use Lib\Core\BaseApiInterface;
+use Lib\Core\Interfaces\BaseApi;
 use Lib\Core\ErrorCode;
 
-class Index implements BaseApiInterface
+class Index implements BaseApi
 {
   public function run(array $params)
   {
@@ -474,13 +478,25 @@ public function run(array $params)
 <?php
 return [
     'runtime' => 'development', // 运行环境，development 为开发环境，test 为测试环境，product 为生产环境
+    'api_path' => '/Api',
     'db' => [ // 数据库配置
         'dbms' => 'mysql',
-        'host' => 'localhost',
+        'host' => '127.0.0.1',
         'port' => '3306',
         'user' => 'root',
         'password' => '123456',
-        'dbname' => 'web2data',
+        'dbname' => 'sampledb',
+    ],
+    'second_db' => [
+        'dbms' => 'mysql',
+        'host' => '127.0.0.1',
+        'port' => '3306',
+        'user' => 'root',
+        'password' => '123456',
+        'dbname' => 'jol',
+    ],
+    'di_config' => [ // PHP-DI 定义配置，可以是定义文件名，也可以是定义文件名数组
+        __DIR__ . '/di_config.php',
     ],
     'debug' => true, // 是否开启 debug，开启 debug 后，可以在提交中带有 debug 参数，返回的数据中将有 debug 项
 ];
@@ -574,8 +590,20 @@ class UserInfo
 
 框架提供了对`PHP-DI`的支持，默认的配置文件是`conf/di_config.php`，不过可以通过系统配置文件`conf/config.php`中的`di_config`项来修改。
 
+该配置项可以是一个`PHP-DI`配置的路径，也可以是一个包含多个`PHP-DI`配置文件路径的数组。
+
 框架在`conf`目录放置了一个依赖注入配置的示例文件`conf/di_config.php.sample`。
 
 有关`PHP-DI`的详细使用请查阅[PHP-DI 文档](http://php-di.org/doc/)。
 
+示例`API`中`Get\Example\Index`中有依赖注入示例。
+
 ## 虚拟子目录支持
+
+如果需要将`API`部署在虚拟子目录中，需要将请求转发至`public\index.php`，由其负责路由。
+
+同时，需要修改`conf\config.php`中的`api_path`设置，将虚拟目录放在该参数中：
+
+```PHP
+api_path' => '/Api'
+```
