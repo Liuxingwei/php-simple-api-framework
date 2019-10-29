@@ -6,6 +6,7 @@ use Application\Model\SafExample;
 use Lib\Core\BaseApiInterface;
 use Lib\Core\BaseModel;
 use Lib\Core\DB;
+use Lib\Core\DBFactory;
 use Lib\Core\ErrorCode;
 use Lib\Validations\Required;
 
@@ -43,24 +44,24 @@ class Index implements BaseApiInterface
      * 设置数据库
      *
      * @Inject
-     * @param DB $db
+     * @param DBFactory $dbFactory
      * @return void
      */
-    public function setDb(DB $db)
+    public function setDb(DBFactory $dbFactory)
     {
-        $this->db = $db;
+        $this->db = $dbFactory->create();
     }
 
     /**
      * 设置第二个数据库
      *
-     * @Inject({"second_db"})
-     * @param DB $db
+     * @Inject({"second_db_factory"})
+     * @param DBFactory $dbFactory
      * @return void
      */
-    public function setSecondDb($db)
+    public function setSecondDb(DBFactory $dbFactory)
     {
-        $this->secondDb = $db;
+        $this->secondDb = $dbFactory->create();
     }
 
     /**

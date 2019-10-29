@@ -17,12 +17,12 @@ class BaseModel
      * 初始化 DB 属性
      *
      * @Inject
-     * @param DB $db
+     * @param DBFactory $db
      * @return void
      */
-    public function __construct(DB $db)
+    public function __construct(DBFactory $dBFactory)
     {
-        $this->db = $db;
+        $this->db = $dBFactory->create();
     }
 
     public function __call($name, $arguments)
