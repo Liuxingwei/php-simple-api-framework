@@ -14,6 +14,13 @@ class BaseModel
     protected $db;
 
     /**
+     * 表名
+     * 
+     * @var string
+     */
+    protected $table;
+
+    /**
      * 初始化 DB 属性
      *
      * @Inject
@@ -23,6 +30,9 @@ class BaseModel
     public function __construct(DBFactory $dBFactory)
     {
         $this->db = $dBFactory->create();
+        if ($this->table) {
+            $this->table($this->table);
+        }
     }
 
     public function __call($name, $arguments)
