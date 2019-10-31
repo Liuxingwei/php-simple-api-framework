@@ -4,6 +4,9 @@ namespace Lib\Core;
 
 use BadMethodCallException;
 
+/**
+ * @Scope
+ */
 class BaseModel
 {
     /**
@@ -15,7 +18,7 @@ class BaseModel
 
     /**
      * 表名
-     * 
+     *
      * @var string
      */
     protected $table;
