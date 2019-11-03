@@ -9,6 +9,8 @@ use Lib\Core\Response;
 use Lib\Core\SafException;
 use ReflectionClass;
 
+use function DI\factory;
+
 class App
 {
     /**
@@ -52,6 +54,9 @@ class App
                 }
             }
         }
+        $containerBuilder->addDefinitions(['db' => factory(function () {
+            return new DB();
+        })]);
         self::$container = $containerBuilder->build();
     }
 

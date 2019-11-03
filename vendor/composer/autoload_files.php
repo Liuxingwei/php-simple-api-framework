@@ -7,5 +7,5 @@ $baseDir = dirname($vendorDir);
 
 return array(
     'bd9634f2d41831496de0d3dfe4c94881' => $vendorDir . '/symfony/polyfill-php56/bootstrap.php',
-    'b33e3d135e5d9e47d845c576147bda89' => $vendorDir . '/php-di/php-di/src/functions.php',
+    '6cf1a5629d1121c25ee70974b10784de' => $vendorDir . '/liuxingwei/lxw-php-di/src/functions.php',
 );

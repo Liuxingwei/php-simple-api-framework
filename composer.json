@@ -13,7 +13,7 @@
         "ext-pdo": "*",
         "ext-json": "*",
         "ext-mbstring": "*",
-        "php-di/php-di": "^6.0",
+        "liuxingwei/lxw-php-di": "^6.0",
         "doctrine/annotations": "^1.8"
     },
     "autoload": {

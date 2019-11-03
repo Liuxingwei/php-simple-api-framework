@@ -8,7 +8,7 @@ class ComposerStaticInite9b9c8548251a38ce4bc938ac54d3c5e
 {
     public static $files = array (
         'bd9634f2d41831496de0d3dfe4c94881' => __DIR__ . '/..' . '/symfony/polyfill-php56/bootstrap.php',
-        'b33e3d135e5d9e47d845c576147bda89' => __DIR__ . '/..' . '/php-di/php-di/src/functions.php',
+        '6cf1a5629d1121c25ee70974b10784de' => __DIR__ . '/..' . '/liuxingwei/lxw-php-di/src/functions.php',
     );
 
     public static $prefixLengthsPsr4 = array (
@@ -87,7 +87,7 @@ class ComposerStaticInite9b9c8548251a38ce4bc938ac54d3c5e
         ),
         'DI\\' => 
         array (
-            0 => __DIR__ . '/..' . '/php-di/php-di/src',
+            0 => __DIR__ . '/..' . '/liuxingwei/lxw-php-di/src',
         ),
         'Application\\' => 
         array (

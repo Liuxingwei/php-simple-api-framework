@@ -26,12 +26,16 @@ class Index implements BaseApiInterface
      */
     private $secondDb;
 
+    private $secondDb1;
+
     /**
      * Mode 示例
      *
      * @var BaseModel
      */
     private $model;
+
+    private $model1;
 
     /**
      * Model 示例
@@ -41,27 +45,46 @@ class Index implements BaseApiInterface
     private $safExample;
 
     /**
+     * Undocumented variable
+     *
+     * @var [type]
+     */
+    private $safExample1;
+
+    /**
      * 设置数据库
      *
-     * @Inject
-     * @param DBFactory $dbFactory
+     * @Inject({"db"})
+     * @param DB $db
      * @return void
      */
-    public function setDb(DBFactory $dbFactory)
+    public function setDb(DB $db)
     {
-        $this->db = $dbFactory->create();
+        $this->db = $db;
     }
 
     /**
      * 设置第二个数据库
      *
-     * @Inject({"second_db_factory"})
-     * @param DBFactory $dbFactory
+     * @Inject({"second_db"})
+     * @param DB $db
      * @return void
      */
-    public function setSecondDb(DBFactory $dbFactory)
+    public function setSecondDb(DB $db)
     {
-        $this->secondDb = $dbFactory->create();
+        $this->secondDb = $db;
+    }
+
+    /**
+     * Undocumented function
+     *
+     * @Inject({"second_db"})
+     * @param DB $db
+     * @return void
+     */
+    public function setSecondDb1(DB $db)
+    {
+        $this->secondDb1 = $db;
     }
 
     /**
@@ -77,6 +100,18 @@ class Index implements BaseApiInterface
     }
 
     /**
+     * Undocumented function
+     *
+     * @Inject
+     * @param BaseModel $model
+     * @return void
+     */
+    public function setModel1(BaseModel $model)
+    {
+        $this->model1 = $model;
+    }
+
+    /**
      * 初始化示例 Model
      *
      * @Inject
@@ -86,6 +121,18 @@ class Index implements BaseApiInterface
     public function setSafExample(SafExample $user)
     {
         $this->safExample = $user;
+    }
+
+    /**
+     * Undocumented function
+     *
+     * @Inject
+     * @param SafExample $safExample
+     * @return void
+     */
+    public function setSafExample1(SafExample $safExample)
+    {
+        $this->safExample1 = $safExample;
     }
 
     /**
@@ -100,11 +147,12 @@ class Index implements BaseApiInterface
     {
 
         $this->model->table('user');
-        $this->db->table('user');
+        $this->db->table('good');
         $res = $this->db->where('id = 1')
             ->selectOne();
         $this->secondDb->table('task_user701_step10002_prod');
         $user = $this->secondDb->select();
+        $this->safExample->table('hello');
         $result = ErrorCode::OK;
         $result['data'] = [
             'user_info' => $res,

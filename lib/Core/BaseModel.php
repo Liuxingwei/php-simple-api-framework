@@ -5,7 +5,7 @@ namespace Lib\Core;
 use BadMethodCallException;
 
 /**
- * @Scope
+ * @Scope("prototype")
  */
 class BaseModel
 {
@@ -27,12 +27,12 @@ class BaseModel
      * 初始化 DB 属性
      *
      * @Inject
-     * @param DBFactory $db
+     * @param DB $db
      * @return void
      */
-    public function __construct(DBFactory $dBFactory)
+    public function __construct(DB $db)
     {
-        $this->db = $dBFactory->create();
+        $this->db = $db;
         if ($this->table) {
             $this->table($this->table);
         }

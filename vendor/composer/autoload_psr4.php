@@ -16,6 +16,6 @@ return array(
     'Invoker\\' => array($vendorDir . '/php-di/invoker/src'),
     'Doctrine\\Common\\Lexer\\' => array($vendorDir . '/doctrine/lexer/lib/Doctrine/Common/Lexer'),
     'Doctrine\\Common\\Annotations\\' => array($vendorDir . '/doctrine/annotations/lib/Doctrine/Common/Annotations'),
-    'DI\\' => array($vendorDir . '/php-di/php-di/src'),
+    'DI\\' => array($vendorDir . '/liuxingwei/lxw-php-di/src'),
     'Application\\' => array($baseDir . '/application'),
 );
