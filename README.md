@@ -590,7 +590,7 @@ class UserInfo extends DB
 
 ## 依赖注入支持
 
-框架提供了对**依赖注入**的支持。使用了改造过的`LIUXINGWEI/LXW-PHP-DI`(fork 自`PHP-DI/PHP-DI`)。主要是增加了`Scope`注解和`scope()`方法，以提供**非单例**注入支持。
+框架提供了对**依赖注入**的支持。使用了改造过的`LIUXINGWEI/LXW-PHP-DI`(fork 自`PHP-DI/PHP-DI`)。主要是增加了`Scope`注解和`scope()`方法，以支持**非单例**注入模式。
 
 `Scope`注解用于自动装配类的定义，其参数可以是`singleton`或`prototype`，不写`Scope`注解，或者不写`Scope`的参数，均默认为`singleton`，即单例模式，`prototype`则为非单例模式。参见`Application/Model/SafExample`类的定义。
 
