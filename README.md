@@ -612,8 +612,8 @@ class UserInfo extends DB
 
 如果需要将`API`部署在虚拟子目录中，需要将请求转发至`public\index.php`，由其负责路由。
 
-同时，需要修改`conf\config.php`中的`api_path`设置，将虚拟目录放在该参数中：
+同时，需要修改`conf\config.php`中的`api_path`设置，将虚拟目录放在该参数中，例如为所有`API`提供`/Api`路径前缀：
 
 ```PHP
-api_path' => '/Api'
+'api_path' => '/Api'
 ```
