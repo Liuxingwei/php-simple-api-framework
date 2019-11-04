@@ -1,9 +1,17 @@
 <?php
 
 use Lib\Core\DB;
+use function DI\factory;
 
 return [
-    'second_db' => function () {
+    'db' => factory(function () {
+        return new DB();
+    }),
+    // 上面的代码和下面注释的代码效果一样
+    // 'db' => function () {
+    // return new DB();
+    // },
+    'second_db' => factory(function () {
         return new DB(CONFIG['second_db']);
-    }
+    })->scope('prototype')
 ];
