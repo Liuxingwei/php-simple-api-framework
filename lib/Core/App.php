@@ -54,9 +54,6 @@ class App
                 }
             }
         }
-        $containerBuilder->addDefinitions(['db' => factory(function () {
-            return new DB();
-        })]);
         self::$container = $containerBuilder->build();
     }
 
