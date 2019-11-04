@@ -237,6 +237,7 @@ server {
   + composer
   + doctrine
   + jeremeamia
+  + liuxingwei
   + nikic
   + php-di
   + psr
@@ -245,6 +246,7 @@ server {
 - .gitignore
 - composer.json
 - composer.lock
+- LICENSE
 - README.md
 ```
 
@@ -532,7 +534,7 @@ namespace Application\Model;
 
 use Lib\Core\DB;
 
-class User
+class User extends DB
 {
   public function checkUser($userName, $password)
   {
@@ -551,7 +553,7 @@ namespace Application\Model;
 
 use Lib\Core\DB;
 
-class UserInfo
+class UserInfo extends DB
 {
   protected $table = 'user_info';
   public function checkUser($userName, $password)
@@ -573,7 +575,7 @@ namespace Application\Model;
 
 use Lib\Core\DB;
 
-class UserInfo
+class UserInfo extends
 {
   public function checkUser($userName, $password)
   {
@@ -588,7 +590,15 @@ class UserInfo
 
 ## 依赖注入支持
 
-框架提供了对`PHP-DI`的支持，默认的配置文件是`conf/di_config.php`，不过可以通过系统配置文件`conf/config.php`中的`di_config`项来修改。
+框架提供了对`PHP-DI`的支持。使用了改造过的`liuxingwei/PHP-DI`(fork 自`PHP-DI/PHP-DI`)。主要是增加了`Scope`注解和`scope()`方法，以提供**非单例**注入支持。
+
+`Scope`注解用于自动装配类的定义，其参数可以是`singleton`或`prototype`，不写`Scope`注解，或者不写`Scope`的参数，均默认为`singleton`，即单例模式，`prototype`则为非单例模式。参见`Application/Model/SafExample`类的定义。
+
+`scope()`方法用于依赖注入配置，在调用`factory()`方法之后，链式调用`scope()`方法，其参数为`singleton`或`prototype`，分别对应单例和非单例模式。参见`conf/config.php.sample`文件中的定义。
+
+两种非单例注入模式的注入示例见`Application/Api/Get/Example/Index`。
+
+默认的配置文件是`conf/di_config.php`，不过可以通过系统配置文件`conf/config.php`中的`di_config`项来修改。
 
 该配置项可以是一个`PHP-DI`配置的路径，也可以是一个包含多个`PHP-DI`配置文件路径的数组。
 

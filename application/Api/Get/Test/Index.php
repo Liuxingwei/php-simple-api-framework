@@ -51,6 +51,10 @@ class Index implements BaseApiInterface
      */
     private $safExample1;
 
+    private $db1;
+
+    private $db2;
+
     /**
      * 设置数据库
      *
@@ -61,6 +65,26 @@ class Index implements BaseApiInterface
     public function setDb(DB $db)
     {
         $this->db = $db;
+    }
+
+    /**
+     * @Inject
+     * @param DB $db
+     * @return void
+     */
+    public function setDb1(DB $db)
+    {
+        $this->db1 = $db;
+    }
+
+    /**
+     * @Inject
+     * @param DB $db
+     * @return void
+     */
+    public function setDb2(DB $db)
+    {
+        $this->db2 = $db;
     }
 
     /**
@@ -85,30 +109,6 @@ class Index implements BaseApiInterface
     public function setSecondDb1(DB $db)
     {
         $this->secondDb1 = $db;
-    }
-
-    /**
-     * 初始化 Model
-     *
-     * @Inject
-     * @param BaseModel $model
-     * @return void
-     */
-    public function setModel(BaseModel $model)
-    {
-        $this->model = $model;
-    }
-
-    /**
-     * Undocumented function
-     *
-     * @Inject
-     * @param BaseModel $model
-     * @return void
-     */
-    public function setModel1(BaseModel $model)
-    {
-        $this->model1 = $model;
     }
 
     /**
@@ -146,13 +146,13 @@ class Index implements BaseApiInterface
     public function run(array $request)
     {
 
-        $this->model->table('user');
         $this->db->table('good');
         $res = $this->db->where('id = 1')
             ->selectOne();
         $this->secondDb->table('task_user701_step10002_prod');
         $user = $this->secondDb->select();
         $this->safExample->table('hello');
+        $this->db1->table('bye');
         $result = ErrorCode::OK;
         $result['data'] = [
             'user_info' => $res,

@@ -2,12 +2,12 @@
 
 namespace Application\Model;
 
-use Lib\Core\BaseModel;
+use Lib\Core\DB;
 
 /**
  * @Scope("prototype")
  */
-class SafExample extends BaseModel
+class SafExample extends DB
 {
     protected $table = 'saf_example';
 }
