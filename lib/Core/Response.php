@@ -40,7 +40,7 @@ class Response
      */
     private static function handlerDebugInfo($result)
     {
-        if (!isset($_ENV['config']['debug']) || !$_ENV['config']['debug'] || !isset($_SERVER['HTTP_DEBUG'])) {
+        if (!isset(CONFIG['debug']) || !CONFIG['debug'] || !isset($_SERVER['HTTP_DEBUG'])) {
             if (isset($result['debug'])) {
                 unset($result['debug']);
             }

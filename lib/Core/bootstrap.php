@@ -3,11 +3,16 @@ defined('ROOT') || define('ROOT', dirname(dirname(__DIR__)));
 require_once ROOT . '/vendor/autoload.php';
 $configFile = ROOT . '/conf/config.php';
 $_ENV['config'] = file_exists($configFile) ? include $configFile : [];
+if (file_exists(ROOT . '/conf/env.php')) {
+    $env = include ROOT . '/conf/env.php';
+    $_ENV['config'] = array_replace_recursive($_ENV['config'], $env);
+}
 defined('CONFIG') || define('CONFIG', $_ENV['config']);
 defined('DB_CONFIG') || (isset(CONFIG['db']) && define('DB_CONFIG', CONFIG['db']));
+putenv("name=30");
 defined('MODEL_NAMESPACE') || (isset(CONFIG['model_namespace']) && define('MODEL_NAMESPACE', CONFIG['model_namespace']));
 crossDomain: (function () {
-    if (isset($_ENV['config']['runtime']) && $_ENV['config']['runtime'] != 'product') {
+    if (isset(CONFIG['runtime']) && CONFIG['runtime'] != 'product') {
         if (isset($_SERVER['HTTP_REFERER'])) {
             $url = parse_url($_SERVER['HTTP_REFERER']);
             $href = $url['scheme'] . '://' . $url['host'];

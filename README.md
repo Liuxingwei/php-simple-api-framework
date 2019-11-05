@@ -520,6 +520,25 @@ CONFIG['runtime'];
 CONFIG['db']['host'];
 ```
 
+通常情况下，我们的生产环境和测试、开发环境在配置方面总会有些差别，因此`SAF`提供了可以覆写`conf/config.php`文件中的默认配置的方法：
+
+即在`conf/env.php`文件中放置需要覆写的配置项，比如生产环境的数据库密码为`@77pai*654`，则可以在生产服务器的`conf/env.php`文件作如下配置：
+
+```PHP
+return [
+    'db' => [
+        'password' => '@77pai*654'
+    ],
+    'second_db' => [
+        'password' => '@77pai*654'
+    ]
+];
+```
+
+而与`conf/config.php`相同的配置，则无需在`conf/env.php`中重复配置。
+
+注意，**不要将`conf/config.php`文件提交到版本库**，可以将其放入版本库的忽略文件列表中，而额外提供一个`conf/env.php.sample`，作为配置的参考。
+
 ## `DB`和`Model`
 
 框架实现了一个基于`PDO`的`DB`类，具体使用请参考`doc`目录的`DB-Class-Usage.md`文件。

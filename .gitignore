@@ -1,8 +1,7 @@
 composer.lock
-.vscode/launch.json
 .idea
-conf/config.php.bak
-conf/config.php
-.vscode/settings.json
+.vscode
 application/Api/Get/Test
 conf/di_config.php
+conf/env.php
+conf/config.php
