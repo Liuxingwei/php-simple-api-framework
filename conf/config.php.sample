@@ -22,4 +22,10 @@ return [
         __DIR__ . '/di_config.php',
     ],
     'debug' => true, // 是否开启 debug，开启 debug 后，可以在提交中带有 debug 参数，返回的数据中将有 debug 项
+    'cross_domain' => [
+        'enable' => true,
+        'domain' => '*',
+        'methods' => ['POST', 'GET', 'OPTIONS', 'PUT', 'DELETE'],
+        'headers' => ['x-requested-with', 'content-type', 'debug'],
+    ]
 ];

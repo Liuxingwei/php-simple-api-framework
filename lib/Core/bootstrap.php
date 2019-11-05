@@ -11,17 +11,31 @@ defined('CONFIG') || define('CONFIG', $_ENV['config']);
 defined('DB_CONFIG') || (isset(CONFIG['db']) && define('DB_CONFIG', CONFIG['db']));
 defined('MODEL_NAMESPACE') || (isset(CONFIG['model_namespace']) && define('MODEL_NAMESPACE', CONFIG['model_namespace']));
 crossDomain: (function () {
-    if (isset(CONFIG['runtime']) && CONFIG['runtime'] != 'product') {
-        if (isset($_SERVER['HTTP_REFERER'])) {
-            $url = parse_url($_SERVER['HTTP_REFERER']);
-            $href = $url['scheme'] . '://' . $url['host'];
-            isset($url['port']) && $href .= ':' . $url['port'];
-        } else {
-            $href = '*';
+    if (isset(CONFIG['cross_domain'])) {
+        $crossDomain = CONFIG['cross_domain'];
+        if (!isset($crossDomain['enable']) || !$crossDomain['enable']) {
+            return;
         }
-        header("Access-Control-Allow-Origin: $href");
-        header("Access-Control-Allow-Methods: POST, GET, OPTIONS, PUT, DELETE");
-        header('Access-Control-Allow-Headers: x-requested-with, content-type, key, debug');
+        if (isset($crossDomain['domain'])) {
+            if ('*' === $crossDomain['domain']) {
+                if (isset($_SERVER['HTTP_REFERER'])) {
+                    $url = parse_url($_SERVER['HTTP_REFERER']);
+                    $domain = $url['scheme'] . '://' . $url['host'];
+                    isset($url['port']) && $domain .= ':' . $url['port'];
+                } else {
+                    $domain = '*';
+                }
+            } else {
+                $domain = $crossDomain['domain'];
+            }
+        } else {
+            $domain = '*';
+        }
+        header("Access-Control-Allow-Origin: $domain");
+        $methods = isset($crossDomain['methods']) ? $crossDomain['methods'] : ['POST', 'GET', 'OPTIONS', 'PUT', 'DELETE'];
+        header("Access-Control-Allow-Methods: " . implode(',', $methods));
+        $headers = isset($crossDomain['headers']) ? array_unique(array_merge($crossDomain['headers'], ['x-requested-with', 'content-type', 'debug'])) : ['x-requested-with', 'content-type', 'debug'];
+        header("Access-Control-Allow-Headers: " . implode(',', $headers));
         header('Access-Control-Allow-Credentials: true');
     }
 })();

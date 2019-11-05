@@ -1,6 +1,6 @@
 ###
 GET http://localhost:3000/api/test/index
 ?user_id=3
-&user_name=9.2
-# &user_name=9.1
+# &user_name=9.2
+&user_name=9.1
 debug: true

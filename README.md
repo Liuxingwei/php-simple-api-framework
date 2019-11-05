@@ -522,14 +522,16 @@ CONFIG['db']['host'];
 
 通常情况下，我们的生产环境和测试、开发环境在配置方面总会有些差别，因此`SAF`提供了可以覆写`conf/config.php`文件中的默认配置的方法：
 
-即在`conf/env.php`文件中放置需要覆写的配置项，比如生产环境的数据库密码为`@77pai*654`，则可以在生产服务器的`conf/env.php`文件作如下配置：
+即在`conf/env.php`文件中放置需要覆写的配置项，比如生产环境的数据库主机地址为`10.0.0.1`，密码为`@77pai*654`，则可以在生产服务器的`conf/env.php`文件作如下配置：
 
 ```PHP
 return [
     'db' => [
+        'host' => '10.0.0.1',
         'password' => '@77pai*654'
     ],
     'second_db' => [
+        'host' => '10.0.0.1',
         'password' => '@77pai*654'
     ]
 ];
@@ -636,3 +638,28 @@ class UserInfo extends BaseModel
 ```PHP
 'api_path' => '/Api'
 ```
+
+### AJAX 跨域问题
+
+如果将`SAF`用于`AJAX`调用的`API`服务，可能需要跨域。
+
+跨域配置项如下：
+
+```PHP
+'cross_domain' => [
+  'enable' => true,
+  'domain' => 'http://192.168.1.25:8080',
+  'methods' => ['POST', 'GET', 'PUT', 'DELETE', 'PATCH',],
+  'headers' => ['sign', 'key',],
+];
+```
+
+`enable`配置项决定了是否启用跨域。系统默认是不启用。
+
+`domain`的系统默认值为`*`。
+
+`methods`的系统默认值为```['POST', 'GET', 'PUT', 'DELETE', 'PATCH',]```。
+
+`headers`的系统默认值为```['x-requested-with', 'content-type', 'debug']```。
+
+由于系统需要使用`header`的默认值支持，因此此项配置不会覆盖系统默认值，而是会与系统默认值合并。其余三项，则会由用户配置覆盖系统默认值。
