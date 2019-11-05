@@ -649,8 +649,8 @@ class UserInfo extends BaseModel
 'cross_domain' => [
   'enable' => true,
   'domain' => 'http://192.168.1.25:8080',
-  'methods' => ['POST', 'GET', 'PUT', 'DELETE', 'PATCH',],
-  'headers' => ['sign', 'key',],
+  'methods' => 'POST, GET, PUT, DELETE, PATCH',
+  'headers' => 'sign, key',
 ];
 ```
 
@@ -658,8 +658,8 @@ class UserInfo extends BaseModel
 
 `domain`的系统默认值为`*`。
 
-`methods`的系统默认值为```['POST', 'GET', 'PUT', 'DELETE', 'PATCH',]```。
+`methods`的系统默认值为```'POST, GET, PUT, DELETE, PATCH'```。
 
-`headers`的系统默认值为```['x-requested-with', 'content-type', 'debug']```。
+`headers`的系统默认值为```'x-requested-with, content-type, debug'```。
 
 由于系统需要使用`header`的默认值支持，因此此项配置不会覆盖系统默认值，而是会与系统默认值合并。其余三项，则会由用户配置覆盖系统默认值。

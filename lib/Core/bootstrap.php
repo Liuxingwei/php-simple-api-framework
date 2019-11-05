@@ -32,10 +32,10 @@ crossDomain: (function () {
             $domain = '*';
         }
         header("Access-Control-Allow-Origin: $domain");
-        $methods = isset($crossDomain['methods']) ? $crossDomain['methods'] : ['POST', 'GET', 'OPTIONS', 'PUT', 'DELETE'];
-        header("Access-Control-Allow-Methods: " . implode(',', $methods));
-        $headers = isset($crossDomain['headers']) ? array_unique(array_merge($crossDomain['headers'], ['x-requested-with', 'content-type', 'debug'])) : ['x-requested-with', 'content-type', 'debug'];
-        header("Access-Control-Allow-Headers: " . implode(',', $headers));
+        $methods = isset($crossDomain['methods']) ? $crossDomain['methods'] : 'POST, GET, OPTIONS, PUT, DELETE';
+        header("Access-Control-Allow-Methods: $methods");
+        $headers = isset($crossDomain['headers']) ? implode(', ', array_unique(explode(',', str_replace(' ', '', $crossDomain['headers'] . ', x-requested-with, content-type, debug')))) : 'x-requested-with, content-type, debug';
+        header("Access-Control-Allow-Headers: $headers");
         header('Access-Control-Allow-Credentials: true');
     }
 })();
