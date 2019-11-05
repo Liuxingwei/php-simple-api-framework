@@ -9,7 +9,6 @@ if (file_exists(ROOT . '/conf/env.php')) {
 }
 defined('CONFIG') || define('CONFIG', $_ENV['config']);
 defined('DB_CONFIG') || (isset(CONFIG['db']) && define('DB_CONFIG', CONFIG['db']));
-putenv("name=30");
 defined('MODEL_NAMESPACE') || (isset(CONFIG['model_namespace']) && define('MODEL_NAMESPACE', CONFIG['model_namespace']));
 crossDomain: (function () {
     if (isset(CONFIG['runtime']) && CONFIG['runtime'] != 'product') {
@@ -38,10 +37,15 @@ set_exception_handler(function (Throwable $ex) {
             'exception' => [
                 'file' => $ex->getFile(),
                 'line' => $ex->getLine(),
-                'trace' => $ex->getTrace(),
             ],
         ],
     ];
+    $trace = json_encode($ex->getTrace(), JSON_UNESCAPED_UNICODE, 1024);
+    if (JSON_ERROR_NONE === json_last_error()) {
+        $response['debug']['exception']['trace'] = $ex->getTrace();
+    } else {
+        $response['debug']['exception']['trace'] = $ex->getTraceAsString();
+    }
 
     $httpCodes = [
         "100",

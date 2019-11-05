@@ -537,7 +537,7 @@ return [
 
 而与`conf/config.php`相同的配置，则无需在`conf/env.php`中重复配置。
 
-注意，**不要将`conf/config.php`文件提交到版本库**，可以将其放入版本库的忽略文件列表中，而额外提供一个`conf/env.php.sample`，作为配置的参考。
+**不要将`conf/config.php`文件提交到版本库**，可以将其放入版本库的忽略文件列表中，而额外提供一个`conf/env.php.sample`，作为配置的参考。
 
 ## `DB`和`Model`
 
