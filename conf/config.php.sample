@@ -28,4 +28,5 @@ return [
         'methods' => 'POST, GET, OPTIONS, PUT, DELETE',
         'headers' => 'x-requested-with, content-type, debug',
     ]
+    'language' => 'cn', // 错误提示的语言设置
 ];

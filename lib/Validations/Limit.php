@@ -8,6 +8,7 @@ namespace Lib\Validations;
  */
 class Limit extends AbstractValidation
 {
+
     /**
      *
      * @Required()
@@ -37,18 +38,15 @@ class Limit extends AbstractValidation
         if (key_exists($this->value, $params)) {
             $value = floatval($params[$this->value]);
             if (false === $value) {
-                $this->error->code = '10004';
-                $this->error->message = '参数 ' . $this->value . ' 必须是数字';
+                $this->err = $this->error->PARAM_MUST_IS_NUMBER;
                 return false;
             }
             if (null !== $this->max && $value > $this->max) {
-                $this->error->code = '10004';
-                $this->error->message = '参数 ' . $this->value . ' 不得大于 ' . $this->max;
+                $this->err = $this->error->mapError($this->error->PARAM_MUST_NOT_MORE_THAN, ['param' => $this->value, 'max' => $this->max]);
                 return false;
             }
             if (null !== $this->min && $value < $this->min) {
-                $this->error->code = '10004';
-                $this->error->message = '参数 ' . $this->value . ' 不得小于 ' . $this->min;
+                $this->err = $this->error->mapError($this->error->PARAM_MUST_NOT_LITTLE_THAN, ['param' => $this->value, 'min' => $this->min]);
                 return false;
             }
         }

@@ -5,3 +5,5 @@ application/Api/Get/Test
 conf/di_config.php
 conf/env.php
 conf/config.php
+conf/err_defines/cn.php
+conf/err_defines/en.php

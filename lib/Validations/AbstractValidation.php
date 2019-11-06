@@ -2,6 +2,7 @@
 
 namespace Lib\Validations;
 
+use Lib\Core\ErrorCodeTrait;
 use Lib\Validations\Utils\Error;
 
 /**
@@ -9,29 +10,9 @@ use Lib\Validations\Utils\Error;
  */
 abstract class AbstractValidation
 {
-    /**
-     * 错误消息
-     *
-     * @var Error
-     */
-    protected $error;
+    use ErrorCodeTrait;
 
-    /**
-     * 错误信息初始化
-     *
-     * @param Error $error
-     * @return void
-     */
-    public function setError(Error $error)
-    {
-        $this->error = $error;
-    }
-
-    public function __construct()
-    {
-        $error = new Error();
-        $this->setError($error);
-    }
+    protected $err;
 
     /**
      * 校验方法
@@ -48,6 +29,6 @@ abstract class AbstractValidation
      */
     public function getError()
     {
-        return $this->error;
+        return $this->err;
     }
 }

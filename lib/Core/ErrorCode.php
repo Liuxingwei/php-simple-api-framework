@@ -7,20 +7,33 @@ namespace Lib\Core;
  */
 class ErrorCode
 {
-    const OK = ['code' => 200, 'message' => 'OK'];
-    const API_NOT_EXISTS = ['code' => 404, 'message' => 'API {{:api}} 不存在'];
-    const HTTP_METHOD_ERROR = ['code' => 500, 'message' => '仅支持 POST 和 GET 提交'];
-    const PARAM_ERROR = ['code' => 400, 'message' => '参数错误'];
-    const API_PATH_ERROR = ['code' => 500, 'message' => 'API 路径错误'];
+    private $err;
+
+    public function __construct($language = 'cn')
+    {
+        $this->err = require dirname(dirname(__DIR__)) . '/conf/err_defines/default.php';
+        $defineFile = dirname(dirname(__DIR__)) . '/conf/err_defines/' . $language . '.php';
+        if (file_exists($defineFile)) {
+            $define = require $defineFile;
+            $this->err = array_replace_recursive($this->err, $define);
+        }
+    }
+
+    public function __get($name)
+    {
+        if (isset($this->err[$name])) {
+            return $this->err[$name];
+        }
+    }
 
     /**
-     * 替换消息字符串中的参数
+     * 替换消息字符串中的参数，返回替换后的消息
      *
      * @param string $msg
      * @param array $params
      * @return string
      */
-    public static function mapMsg($msg, $params)
+    public function mapMsg($msg, $params)
     {
         foreach ($params as $key => $value) {
             $msg = preg_replace("/{{:$key}}/", $value, $msg);
@@ -29,15 +42,15 @@ class ErrorCode
     }
 
     /**
-     * 生成可输出的 ErrorCode
+     * 生成可输出的 ErrorCode 数组
      *
      * @param array $error
      * @param array $params
      * @return array
      */
-    public static function mapError($error, $params)
+    public function mapError($error, $params)
     {
-        $error['message'] = self::mapMsg($error['message'], $params);
+        $error['message'] = $this->mapMsg($error['message'], $params);
         return $error;
     }
 }

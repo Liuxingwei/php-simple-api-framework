@@ -26,8 +26,7 @@ class Required extends AbstractValidation
     public function check(array $params)
     {
         if (!key_exists($this->value, $params)) {
-            $this->error->code = '10001';
-            $this->error->message = '参数 ' . $this->value . ' 必须';
+            $this->err = $this->error->mapError($this->error->PARAM_MUST_EXISTS, ['param' => $this->value]);
             return false;
         }
 

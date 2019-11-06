@@ -40,13 +40,11 @@ class Length extends AbstractValidation
             $value = $params[$this->value];
             $len = mb_strlen($value);
             if (null !== $this->max && $len > $this->max) {
-                $this->error->code = '10003';
-                $this->error->message = '参数 ' . $this->value . ' 不得长于 ' . $this->max;
+                $this->err = $this->error->mapError($this->error->PARAM_MUST_NOT_LONG_THAN, ['param' => $this->value, 'max' => $this->max]);
                 return false;
             }
             if (null !== $this->min && $len < $this->min) {
-                $this->error->code = '10003';
-                $this->error->message = '参数 ' . $this->value . ' 不得短于 ' . $this->min;
+                $this->err = $this->error->mapError($this->error->PARAM_MUST_NOT_SHORT_THAN, ['param' => $this->value, 'min' => $this->min]);
                 return false;
             }
         }

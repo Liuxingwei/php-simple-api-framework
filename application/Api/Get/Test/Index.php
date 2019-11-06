@@ -6,12 +6,13 @@ use Application\Model\SafExample;
 use Lib\Core\BaseApiInterface;
 use Lib\Core\BaseModel;
 use Lib\Core\DB;
-use Lib\Core\DBFactory;
-use Lib\Core\ErrorCode;
+use Lib\Core\ErrorCodeTrait;
 use Lib\Validations\Required;
 
 class Index implements BaseApiInterface
 {
+    use ErrorCodeTrait;
+
     /**
      * 默认数据库
      *
@@ -153,7 +154,7 @@ class Index implements BaseApiInterface
         $this->secondDb->table('task_user701_step10002_prod');
         $user = $this->secondDb->select();
         $this->safExample->table('hello');
-        $result = ErrorCode::OK;
+        $result = $this->error->OK;
         $result['data'] = [
             'user_info' => $res,
             'user' => $user,

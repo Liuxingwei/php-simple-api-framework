@@ -1,21 +1,20 @@
 <?php
 
-use Lib\Core\DB;
 use function DI\factory;
+use Lib\Core\DB;
+use Lib\Core\ErrorCode;
 
 return [
     'db' => factory(function () {
         return new DB();
     }),
-    // 上面的代码和下面注释的代码效果一样
-    // 'db' => function () {
-    // return new DB();
-    // },
-    // 下面的方法，可以将 DB 的注入模式改为默认 prototype 形式
     DB::class => factory(function () {
         return new DB();
     })->scope('prototype'),
     'second_db' => factory(function () {
         return new DB(CONFIG['second_db']);
-    })->scope('prototype')
+    })->scope('prototype'),
+    ErrorCode::class => function () {
+        return new ErrorCode(CONFIG['language']);
+    },
 ];

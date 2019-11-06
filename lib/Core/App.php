@@ -9,8 +9,6 @@ use Lib\Core\Response;
 use Lib\Core\SafException;
 use ReflectionClass;
 
-use function DI\factory;
-
 class App
 {
     /**
@@ -18,13 +16,31 @@ class App
      */
     static public $container;
 
+    /**
+     * Api 类的类名
+     *
+     * @var string
+     */
     static public $className;
 
+    /**
+     * Request 实例
+     *
+     * @var Request
+     */
     static public $request;
+
+    /**
+     * 错误消息对象
+     *
+     * @var ErrorCode
+     */
+    static public $errorCode;
 
     static final public function run()
     {
         self::initContainer();
+        self::initErrorCode();
         self::route();
         self::validationParams();
         self::_run();
@@ -57,6 +73,11 @@ class App
         self::$container = $containerBuilder->build();
     }
 
+    private static final function initErrorCode()
+    {
+        self::$errorCode = self::$container->get(ErrorCode::class);
+    }
+
     private static final function validationParams()
     {
         self::$request = self::$container->get('Lib\Core\Request');
@@ -71,10 +92,9 @@ class App
         $runMethod = $reflClass->getMethod('run');
         $annotations = $annotationReader->getMethodAnnotations($runMethod);
         foreach ($annotations as $annotation) {
+            self::$container->injectOn($annotation);
             if (false === $annotation->check(self::$request->getParams())) {
-                $error = ErrorCode::PARAM_ERROR;
-                $error['message'] = $annotation->getError()->message;
-                SafException::throw($error);
+                SafException::throw($annotation->getError());
             }
         }
     }
@@ -96,7 +116,7 @@ class App
                     continue;
                 }
                 if (strtolower($apiPath[$i]) != strtolower($scriptArray[0])) {
-                    SafException::throw(ErrorCode::API_PATH_ERROR);
+                    SafException::throw(self::$errorCode->API_PATH_ERROR);
                 }
                 array_shift($scriptArray);
             }
@@ -109,7 +129,7 @@ class App
             return strtoupper($match[1]);
         }, implode('\\', $scriptArray));
         if (!class_exists(self::$className) || (new ReflectionClass(self::$className))->isAbstract() || !is_subclass_of(self::$className, 'Lib\Core\BaseApiInterface')) {
-            SafException::throw(ErrorCode::mapError(ErrorCode::API_NOT_EXISTS, ['api' => $scriptPath]));
+            SafException::throw(self::$errorCode->mapError(self::$errorCode->API_NOT_EXISTS, ['api' => $scriptPath]));
         }
     }
 }

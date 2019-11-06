@@ -1,0 +1,4 @@
+<?php
+return [
+    'OK' => ['code' => 200, 'message' => 'OK']
+];

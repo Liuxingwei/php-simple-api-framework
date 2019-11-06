@@ -27,8 +27,7 @@ class NotEmpty extends AbstractValidation
     public function check(array $params)
     {
         if (key_exists($this->value, $params) && empty($params[$this->value])) {
-            $this->error->code = '10002';
-            $this->error->message = '参数 ' . $this->value . ' 不得为空';
+            $this->err = $this->error->mapError($this->error->PARAM_MUST_NOT_EMPTY, ['param' => $this->value]);
             return false;
         }
 

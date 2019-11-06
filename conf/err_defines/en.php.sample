@@ -1,0 +1,4 @@
+<?php
+return [
+    'API_NOT_EXISTS' => ['code' => 404, 'message' => 'API {{:api}} not exists.'],
+];
