@@ -603,9 +603,24 @@ class UserInfo extends BaseModel
 }
 ```
 
-在创建`DB`类实例或继承了`DB`类实例的`Model`类实例时，可以省略构造函数需要的数据库配置参数，这时`DB`类的构造函数将尝试获取`DB_CONFIG`常量作为其默认数据库配置。
+如果使用依赖注入方式注入`Model`类，建议以多实例模式注入，以避免单例引起的问题。
 
-框架已经将配置文件中的`db`元素定义在了`DB_CONFIG`常量中，只需要将`config.php.sample`复制为`config.php`，并按照用户自己的实际服务器情况进行配置即可。
+可以在定义`Model`时即将其指定为多实例模式：
+
+```PHP
+// application/Model/UserInfo.php
+namespace Application\Model;
+
+use Lib\Core\BaseModel;
+
+/**
+ * @Scope('prototype')
+ */
+class UserInfo extends BaseModel
+{
+  .....
+}
+```
 
 ## 依赖注入支持
 

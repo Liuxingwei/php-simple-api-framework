@@ -9,14 +9,21 @@ class ErrorCode
 {
     private $err;
 
-    public function __construct($language = 'cn')
+    private $language = 'cn';
+
+    public function __construct($defineDir)
     {
-        $this->err = require dirname(dirname(__DIR__)) . '/conf/err_defines/default.php';
-        $defineFile = dirname(dirname(__DIR__)) . '/conf/err_defines/' . $language . '.php';
+        $this->err = require_once $defineDir . '/default.php';
+        $defineFile = require_once $defineDir . '/' . $this->language . '.php';
         if (file_exists($defineFile)) {
             $define = require $defineFile;
             $this->err = array_replace_recursive($this->err, $define);
         }
+    }
+
+    public function setLanguage($language)
+    {
+        $this->language = $language;
     }
 
     public function __get($name)
