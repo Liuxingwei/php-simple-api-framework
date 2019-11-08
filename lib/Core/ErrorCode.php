@@ -14,7 +14,7 @@ class ErrorCode
     public function __construct($defineDir)
     {
         $this->err = require_once $defineDir . '/default.php';
-        $defineFile = require_once $defineDir . '/' . $this->language . '.php';
+        $defineFile = $defineDir . '/' . $this->language . '.php';
         if (file_exists($defineFile)) {
             $define = require $defineFile;
             $this->err = array_replace_recursive($this->err, $define);
