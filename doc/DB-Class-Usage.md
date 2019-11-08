@@ -9,47 +9,16 @@ use Lib\Core\DB;
 $db = new DB($dbConfig);
 ```
 
-```PHP
-use Lib\Core\DB;
-$db = DB::getInstance($dbConfig);
-```
-
 或者用类的全名引用`DB`类：
 
 ```PHP
 $db = new \Lib\Core\DB($dbConfig);
 ```
 
-```PHP
-$db = \Lib\Core\DB::getInstance($dbConfig);
-```
-
 ## 二、创建`DB`类实例
 
-创建`DB`类实例有两种方式： `new DB(\$dbConfig)` 和 `DB::getInstance(\$dbConfig)`。
-
-两种方法的签名是一样的：需要一个数据库配置数组作参数，返回一个`DB`类实例。
-
-参数是可选的，不提供参数，则依据配置文件中的数据库配置作为默认参数值实例化。
-
 ```PHP
-$db = new DB();
-```
-
-```PHP
-$db = DB::getInstance();
-```
-
-两种方法的差别在于：
-
-`new DB()`仅能创建`DB`类的实例。
-
-`DB::getInstance()`在指定表名的情况下，会有两种可能的返回值。如果表名对应的 Model 类存在，则会初始化该类，并返回其实例；如果表名对应的 Model 类不存在，则会初始化`DB`类，并调用其`table()`方法初始化表名，并返回此实例。
-
-```PHP
-$db = DB::getInstance('user');
-// 如果 Model\User 类存在，则返回其实例。
-// 如果 Model\User 类不存在，则返回已经调用过 table('user') 的 DB 类实例。
+$db = new DB($dbConfig);
 ```
 
 ### 1. 构造方法
@@ -71,44 +40,9 @@ $config = [
    ];
 ```
 
-此参数可选，如果省略，则使用系统默认配置。
-
 为节省创建数据库连接的开销，默认情况下，数据库配置相同的实例会共享同一数据库连接，如果想要独享，只需将`standAlone`设置为`true`。
 
-### 2. DB::getInstance()
-
-方法签名：
-
-* `DB::getInstance([string $table,][array $dbConfig]):DB`
-* `DB::getInstance([array $dbConfig,][string $table]):DB`
-
-简单说，其实`DB`类的构造方法有两个参数，一个是表名（`$table`），另一个是数据库连接配置（`$dbConfig`）,顺序无关，且均可选。
-
-`$dbConfig`参数示例：
-
-```PHP
-$config = [
-    'dbms' => 'mysql', // 数据库类型，必填
-    'host' => '192.168.1.30', // 数据库服务器ip，必填
-    'port' => '3306', // 服务器数据库服务端口，可选，默认为 3306
-    'user' => 'root', // 连接用户名，必填
-    'password' => '123456', // 连接密码，必填
-    'dbname' => 'mydb', // 默认数据库，可选
-    'encoding' => 'gbk', // 数据库字符编码，可选，默认为 UTF8MB4
-    ];
-```
-
-如果省略`$dbConfig`参数，则使用系统默认的配置。
-
-如果有表名参数，且定义了`MODEL_NAMESPACE`常量，则会尝试实例化该命名空间下的`TableName`实例，否则初始化`DB`类，并调用其`table()`方法初始化表名，并返回此实例。
-
-```PHP
-$db = DB::getInstance('user');
-// 如果 Model\User 类存在，则返回其实例。
-// 如果 Model\User 类不存在，则返回已经调用过 table('user') 的 DB 类实例。
-```
-
-### 3. clear()
+### 2. clear()
 
 `DB`类的实例，持有`fields`、`where`、`join`、`order`、`group`、`having`、`error`等多个属性，这些属性将用于拼装实际的`SQL`串，这些属性在创建实例时均为`null`，此时的实例即为清洁实例。
 

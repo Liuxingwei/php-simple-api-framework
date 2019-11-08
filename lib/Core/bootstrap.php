@@ -8,8 +8,6 @@ if (file_exists(ROOT . '/conf/env.php')) {
     $_ENV['config'] = array_replace_recursive($_ENV['config'], $env);
 }
 defined('CONFIG') || define('CONFIG', $_ENV['config']);
-defined('DB_CONFIG') || (isset(CONFIG['db']) && define('DB_CONFIG', CONFIG['db']));
-defined('MODEL_NAMESPACE') || (isset(CONFIG['model_namespace']) && define('MODEL_NAMESPACE', CONFIG['model_namespace']));
 crossDomain: (function () {
     if (isset(CONFIG['cross_domain'])) {
         $crossDomain = CONFIG['cross_domain'];

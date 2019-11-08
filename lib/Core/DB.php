@@ -203,72 +203,6 @@ class DB
      * 初始化DB库
      *
      * 参数说明及示例：
-     *   参数可变，顺序无关，可用参数有两个：
-     *   $dbConfig 参数为数组，数组各项对应了初始化 PDO 时需要的 dsn 信息项
-     *   $table 参数为字符串，设置表名，如果为空则不置表名
-     *   示例：
-     *   $config = [
-     *     'dbms' => 'mysql', // 数据库类型，必填
-     *     'host' => '192.168.1.30', // 数据库服务器ip，必填
-     *     'port' => '3306', // 服务器数据库服务端口，可选，默认为 3306
-     *     'user' => 'root', // 连接用户名，必填
-     *     'password' => '123456', // 连接密码，必填
-     *     'dbname' => 'mydb', // 默认数据库，可选
-     *     'encoding' => 'gbk', // 数据库字符编码，可选，默认为 UTF8MB4
-     *     'standAlone' => true, // 【可选】标识该实例是否使用独立的数据库连接，不与其他同配置的 DB 类共享
-     *   ];
-     *   $db = new DB($config);
-     *   $db = new DB('test');
-     * @param ... $params
-     * @return DB 数据库类实例
-     */
-    static public function getInstance(...$params)
-    {
-        if (count($params) === 0) {
-            $table = null;
-            $dbConfig = null;
-        } else if (count($params) === 1) {
-            if (is_array($params[0])) {
-                $dbConfig = $params[0];
-                $table = null;
-            } else if (is_string($params[0])) {
-                $table = $params[0];
-                $dbConfig = null;
-            } else {
-                throw new InvalidArgumentException('获取DB类实例方法参数错误', '500');
-            }
-        } else if (count($params) === 2) {
-            if (is_array($params[0]) && is_string($params[1])) {
-                $dbConfig = $params[0];
-                $table = $params[1];
-            } else if (is_string($params[1]) && is_array($params[0])) {
-                $table = $params[0];
-                $dbConfig = $params[1];
-            } else {
-                throw new InvalidArgumentException('获取DB类实例方法参数错误', '500');
-            }
-        } else {
-            throw new InvalidArgumentException('获取DB类实例方法参数错误', '500');
-        }
-        if ($table) {
-            $class = self::tableName2ClassName($table);
-            if (false !== $class && class_exists($class)) {
-                return new $class($dbConfig);
-            } else {
-                $db = new DB($dbConfig);
-                $db->table($table);
-                return $db;
-            }
-        } else {
-            return new DB($dbConfig);
-        }
-    }
-
-
-    /**
-     * 初始化DB库
-     *
-     * 参数说明及示例：
      *   $dbConfig 参数为数组，数组各项对应了初始化 PDO 时需要的 dsn 信息项，示例如下：
      *   $config = [
      *     'dbms' => 'mysql', // 数据库类型，必填
@@ -281,15 +215,10 @@ class DB
      *     'standAlone' => true, // 【可选】标识该实例是否使用独立的数据库连接，不与其他同配置的 DB 类共享
      *   ];
      *   $db = new DB($config);
-     *   如果不提供 $dbConfig 参数，则会试图使用 DB_CONFIG 常量
      * @param array $dbConfig 数据库连接参数（dsn），参见示例
      */
-    public function __construct($dbConfig = null)
+    public function __construct($dbConfig)
     {
-        if (null === $dbConfig && !defined('DB_CONFIG')) {
-            throw new InvalidArgumentException('未提供数据库配置', 500);
-        }
-        $dbConfig = $dbConfig !== null ? $dbConfig : DB_CONFIG;
         $key = self::generateKey($dbConfig);
         $this->setKey($key);
         $dsn = $dbConfig['dbms'] . ':';
@@ -412,17 +341,6 @@ class DB
             return '_' . strtoupper($match[1]);
         }, $tablePart);
         return strtolower($tableName);
-    }
-
-    public static function tableName2ClassName($tableName)
-    {
-        if (MODEL_NAMESPACE) {
-            return MODEL_NAMESPACE . ucfirst(preg_replace_callback('|_(.)|', static function ($match) {
-                return strtoupper($match[1]);
-            }, $tableName));
-        } else {
-            return false;
-        }
     }
 
     /**
