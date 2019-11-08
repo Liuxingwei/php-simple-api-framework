@@ -1,20 +1,30 @@
 <?php
 
-use function DI\factory;
 use Lib\Core\DB;
+use function DI\factory;
 use Lib\Core\ErrorCode;
 
 return [
-    'db' => factory(function () {
-        return new DB();
-    }),
+    /*---------------------- 系统运行依赖的必备配置项 开始---------------------------*/
     DB::class => factory(function () {
-        return new DB();
+        return new DB(CONFIG['db']);
     })->scope('prototype'),
+    ErrorCode::class => function () {
+        $errorCode =  new ErrorCode(CONFIG['err_define_dir']);
+        // $errorCode->setLanguage(CONFIG['language']);
+        return $errorCode;
+    },
+    /*---------------------- 系统运行依赖的必备配置项 结束---------------------------*/
+    // 单例 DB 对象示例
+    'db' => factory(function () {
+        return new DB(CONFIG['db']);
+    }),
+    // 上面的代码和下面注释的代码效果一样
+    // 'db' => function () {
+    // return new DB(CONFIG['db']);
+    // },
+    // 多例 DB 对象实例
     'second_db' => factory(function () {
         return new DB(CONFIG['second_db']);
     })->scope('prototype'),
-    ErrorCode::class => function () {
-        return new ErrorCode(CONFIG['language']);
-    },
 ];
