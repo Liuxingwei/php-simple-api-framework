@@ -19,6 +19,68 @@ class Response
         echo $res;
     }
 
+    public static function html($result)
+    {
+        echo $result;
+    }
+
+    public static function xml($result, $status = 200)
+    {
+        $result = self::handlerDebugInfo($result);
+        header('Content-Type: application/xml; charset=UTF-8', true, $status);
+        $xml = self::arrayToXml($result);
+        echo $xml;
+    }
+
+    public static function text($result)
+    {
+        header('Content-Type: text/plain; charset=UTF-8', true, 200);
+        echo $result;
+    }
+
+    public static function javascript($result)
+    {
+        header('Content-Type: application/javascript; charset=UTF-8', true, 200);
+        echo $result;
+    }
+
+    public static function x_javascript($result)
+    {
+        header('Content-Type: application/x-javascript; charset=UTF-8', true, 200);
+        echo $result;
+    }
+
+    public static function stream($result, $headers)
+    {
+        foreach ($headers as $header) {
+            header($header);
+        }
+        echo $result;
+    }
+
+    private static function arrayToXml(array $arr)
+    {
+        $xml = '<?xml version="1.0" encoding="utf-8" ?>';
+        $xml .= self::arrayToXmlSnippet($arr);
+        return $xml;
+    }
+
+    private static function arrayToXmlSnippet(array $arr)
+    {
+        $xml = '';
+        foreach ($arr as $key => $val) {
+            if (is_numeric($val)) {
+                $xml .= '<' . $key . '>' . $val . '</' . $key . '>';
+            } else if (is_array($val)) {
+                $xml .= '<' . $key . '>' . self::arryToXmlSnippet($val) . '</' . $key . '>';
+            } else {
+                $xml .= '<' . $key . '>' . $val . '</' . $key . '>';
+                // $xml .= '<' . $key . '><![CDATA[' . $val . ']]></' . $key . '>';
+            }
+        }
+        return $xml;
+    }
+
     /**
      * 计算运行时长（毫秒）
      * @param float $startTime
@@ -67,8 +129,8 @@ class Response
         return $result;
     }
 
-    public static function response($content, $type = 'json', $errorCode = null)
+    public static function response($content, $type = 'json', $option = null)
     {
-        return call_user_func(array(__CLASS__, $type), $content, $errorCode);
+        return call_user_func(array(__CLASS__, $type), $content, $option);
     }
 }

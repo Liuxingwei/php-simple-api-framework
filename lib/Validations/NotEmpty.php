@@ -27,7 +27,7 @@ class NotEmpty extends AbstractValidation
     public function check(array $params)
     {
         if (key_exists($this->value, $params) && empty($params[$this->value])) {
-            $this->err = $this->error->mapError($this->error->PARAM_MUST_NOT_EMPTY, ['param' => $this->value]);
+            $this->err = $this->errCode->mapError($this->errCode->PARAM_MUST_NOT_EMPTY, ['param' => $this->value]);
             return false;
         }
 

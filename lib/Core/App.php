@@ -35,12 +35,12 @@ class App
      *
      * @var ErrorCode
      */
-    static public $errorCode;
+    static public $errCode;
 
     static final public function run()
     {
         self::initContainer();
-        self::initErrorCode();
+        self::initErrCode();
         self::route();
         self::validationParams();
         self::_run();
@@ -51,8 +51,9 @@ class App
         $instance = self::$container->get(self::$className);
         $content = $instance->run(self::$request->getParams());
         $responseType = property_exists($instance, 'responseType') ? $instance->responseType : 'json';
-        $responseCode = property_exists($instance, 'errorCode') ? $instance->errorCode : null;
-        Response::response($content, $responseType, $responseCode);
+        $responseOption = property_exists($instance, 'errorCode') ? $instance->errorCode : null;
+        $responseOption = property_exists($instance, 'headers') ? $instance->headers : $responseOption;
+        Response::response($content, $responseType, $responseOption);
     }
 
     private static final function initContainer()
@@ -73,9 +74,9 @@ class App
         self::$container = $containerBuilder->build();
     }
 
-    private static final function initErrorCode()
+    private static final function initErrCode()
     {
-        self::$errorCode = self::$container->get(ErrorCode::class);
+        self::$errCode = self::$container->get(ErrorCode::class);
     }
 
     private static final function validationParams()
@@ -116,7 +117,7 @@ class App
                     continue;
                 }
                 if (strtolower($apiPath[$i]) != strtolower($scriptArray[0])) {
-                    SafException::throw(self::$errorCode->API_PATH_ERROR);
+                    SafException::throw(self::$errCode->API_PATH_ERROR);
                 }
                 array_shift($scriptArray);
             }
@@ -129,7 +130,7 @@ class App
             return strtoupper($match[1]);
         }, implode('\\', $scriptArray));
         if (!class_exists(self::$className) || (new ReflectionClass(self::$className))->isAbstract() || !is_subclass_of(self::$className, 'Lib\Core\BaseApiInterface')) {
-            SafException::throw(self::$errorCode->mapError(self::$errorCode->API_NOT_EXISTS, ['api' => $scriptPath]));
+            SafException::throw(self::$errCode->mapError(self::$errCode->API_NOT_EXISTS, ['api' => $scriptPath]));
         }
     }
 }

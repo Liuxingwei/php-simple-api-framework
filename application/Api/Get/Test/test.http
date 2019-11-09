@@ -4,3 +4,21 @@ GET http://localhost:3000/api/test/index
 &user_name=9.2
 # &user_name=9.1
 debug: true
+
+###
+GET http://localhost:3000/api/test/html
+
+###
+GET http://localhost:3000/api/test/text
+
+###
+GET http://localhost:3000/api/test/xml
+
+###
+GET http://localhost:3000/api/test/javascript
+
+###
+GET http://localhost:3000/api/test/x-javascript
+
+###
+GET http://localhost:3000/api/test/stream

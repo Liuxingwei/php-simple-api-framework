@@ -154,7 +154,7 @@ class Index implements BaseApiInterface
         $this->secondDb->table('task_user701_step10002_prod');
         $user = $this->secondDb->select();
         $this->safExample->table('hello');
-        $result = $this->error->OK;
+        $result = $this->errCode->OK;
         $result['data'] = [
             'user_info' => $res,
             'user' => $user,

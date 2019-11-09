@@ -359,14 +359,46 @@ PUT /user-info/modify-user   =>    Application\Api\Put\UserInfo\ModifyUser
 
 ### `ErrorCode`类
 
-可以将返回的基本结构以类常量的形式定义在`ErrorCode`类中。
+可以将返回的基本结构放在配置文件中，通过`ErrorCode`类读取。
 
-`ErrorCode`类里已有了几个预定义的类常量，比如：
+框架提供了一个`ErrorCodeTrait`，其中定义了实例变量`errCode`，实例化了`ErrorCode`类，可以直接在需要使用`ErrorCode`的类中使用（注意规避一下与`errCode`变量名的命名冲突）：
 
 ```PHP
-const OK = ['code' => 200, 'message' => 'OK'];
-const API_NOT_EXISTS = ['code' => 404, 'message' => 'API {{:api}} 不存在'];
-const HTTP_METHOD_ERROR = ['code' => 500, 'message' => '仅支持 POST 和 GET 提交'];
+use Lib\Core\ErrorCodeTrait;
+
+class xxx {
+  use ErrorCodeTrait;
+  public function xx(...)
+  {
+    ...
+    $res = $this->errCode->OK;
+    return $res;
+  }
+}
+```
+
+`ErrorCode`使用的配置文件有`default.php`和`xx.php`两个，后一个文件的`xx`指的是配置语言，默认为中文，即`cn`。配置文件默认放在项目根目录下的`conf/err_define`文件夹。
+
+文件位置和语言均中在`conf/config.php`中配置：
+
+```PHP
+return [
+  ...
+  'err_define_dir' => __DIR__ . '/mydefine',
+  'language' => 'en',
+  ...
+]
+```
+
+配置方式参见`conf/err_define/cn.php`。
+
+`default.php`中放置的是系统预定义的配置，不建议直接修改，可以在语言文件中定义同名元素覆盖默认配置。
+
+配置中的元素的`key`，可以当作`errCode`的属性直接使用：
+
+```PHP
+$this->errCode->OK;
+$this->errCode->PARAM_MUST_NOT_EMPTY;
 ```
 
 可以这样改写`Example\Index`：
@@ -376,29 +408,32 @@ const HTTP_METHOD_ERROR = ['code' => 500, 'message' => '仅支持 POST 和 GET �
 namespace Application\Api\Get\Example;
 
 use Lib\Core\Interfaces\BaseApi;
-use Lib\Core\ErrorCode;
+use Lib\Core\ErrorCodeTrait;
 
 class Index implements BaseApi
 {
+  use ErrorCodeTrait;
   public function run(array $params)
   {
-    return ErrorCode::OK;
+    $res = $this->errCode->OK;
+    $res['descriptio' => "I'm GET request'];
+    return $res;
   }
 }
 ```
 
-`API_NOT_EXISTS`常量使用了占位符，占位符被包含在`{{:`和`}}`之间。可以使用数组指定要替换的与数组键匹配的值。
+消息定义可以使用占位符，占位符被包含在`{{:`和`}}`之间。可以使用数组指定要替换的与数组键匹配的值。
 
-例如，定义如下常量：
+例如，定义如下消息：
 
 ```PHP
-const PARAM_NOT_EXISTS = ['code' => 403, 'message' => '参数 {{:param}} 的长度必须在 {{:min}} 到 {{:max}} 之间'];
+ PARAM_NOT_EXISTS => ['code' => 403, 'message' => '参数 {{:param}} 的长度必须在 {{:min}} 到 {{:max}} 之间'];
 ```
 
 然后在`Api`的`run()`方法中这样使用：
 
 ```PHP
-$err = ErrorCode::mapError(ErrorCode::PARAM_NOT_EXISTS, ['param' => 'username', 'min' => 3, 'max' => 16]);
+$err = self::errCode->mapError(self::errCode->PARAM_NOT_EXISTS, ['param' => 'username', 'min' => 3, 'max' => 16]);
 // 最终的输出结果为：
 // {
 //   "code": 403,

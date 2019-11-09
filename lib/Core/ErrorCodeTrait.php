@@ -9,15 +9,15 @@ trait ErrorCodeTrait
     /**
      * @var ErrorCode
      */
-    protected $error;
+    protected $errCode;
 
     /**
      * @Inject
-     * @param ErrorCode $error
+     * @param ErrorCode $errCode
      * @return void
      */
-    public function setErrorCode(ErrorCode $error)
+    public function setErrorCode(ErrorCode $errCode)
     {
-        $this->error = $error;
+        $this->errCode = $errCode;
     }
 }

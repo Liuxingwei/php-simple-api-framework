@@ -11,7 +11,7 @@ class Index implements BaseApiInterface
 
     public function run(array $params)
     {
-        $result = $this->error->OK;
+        $result = $this->errCode->OK;
         $result['description'] = "I'm a GET request.";
         return $result;
     }
