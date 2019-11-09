@@ -7,3 +7,5 @@ conf/env.php
 conf/config.php
 conf/err_defines/cn.php
 conf/err_defines/en.php
+conf/err_define/cn.php
+conf/err_define/en.php

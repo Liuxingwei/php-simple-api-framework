@@ -27,6 +27,7 @@ return [
         'domain' => '*',
         'methods' => 'POST, GET, OPTIONS, PUT, DELETE',
         'headers' => 'x-requested-with, content-type, debug',
-    ]
+    ],
+    'err_define_dir' => __DIR__ . '/err_define',
     'language' => 'cn', // 错误提示的语言设置
 ];
