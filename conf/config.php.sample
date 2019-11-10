@@ -30,4 +30,7 @@ return [
     ],
     'err_define_dir' => __DIR__ . '/err_define',
     'language' => 'cn', // 错误提示的语言设置
+    'validation_namespaces' => [ // 校验类命名空间定义
+        'Application\Validations',
+    ],
 ];

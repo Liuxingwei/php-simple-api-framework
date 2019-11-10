@@ -496,14 +496,67 @@ public function run(array $params)
       'message' => '登录失败',
     ])
   }
-  $this->responseJson([
+  return [
     'code' => 200,
     'message' => '登录成功',
-  ]);
+  ];
 }
 ```
 
 这两段代码的输出是一样的。
+
+### 输出类型
+
+默认的输出类型为`application/json`。无需主动对结果进行`json_encode`，只需`run()`方法返回要输出的数组即可。
+
+```PHP
+public function run($param)
+{
+  ......
+  return ['code' => '200', 'message' => 'ok'];
+}
+```
+
+也可以定义其它类型的输出，通过`API`类的`$responseType`属性指定。
+
+```PHP
+......
+class xxx extends BaseApiInterface
+{
+  public $responseType = 'html';
+  return "<div>这是一个html片段</div>";
+}
+```
+
+可以使用的类型有：
+
+`html`、`json`、`xml`、`text`、`javascript`、`steam`。
+
+其中，`json`和`xml`类型，`run()`方法返回数组；`html`和`text`返回文本；`javascript`返回`js`文本。
+
+`stream`用于输出文件，除了`run()`方法要返回待输出文件的内容外，还需要通过`headers`属性指定`response`头信息。
+
+```PHP
+namespace Application\Api\Get\Test;
+
+use Lib\Core\BaseApiInterface;
+
+class Stream implements BaseApiInterface
+{
+    public $responseType = 'stream';
+    public $headers = [
+        'Content-Type: application/vnd.ms-excel',
+        'Content-Disposition: attachment;filename=test.csv',
+        'Cache-Control: max-age=0',
+    ];
+    public function run(array $request)
+    {
+        $csv = "name,age,sex,job\nzhangsan,30,男,程序猿";
+        $this->headers[] = 'Content-Lenght: ' . mb_strlen($csv);
+        return $csv;
+    }
+}
+```
 
 ## 配置文件
 
@@ -711,3 +764,289 @@ class UserInfo extends BaseModel
 `headers`的系统默认值为```'x-requested-with, content-type, debug'```。
 
 由于系统需要使用`header`的默认值支持，因此此项配置不会覆盖系统默认值，而是会与系统默认值合并。其余三项，则会由用户配置覆盖系统默认值。
+
+### 参数校验
+
+框架提供了几个基本的校验类，用于对请求参数进行校验。
+
+这些校验方法的使用依赖了`annotation`（注解）技术。仅需在`run()`方法上添加注解，即可实现对参数的校验。
+
+每条注解需要声明要校验的参数名，有的还需要带有额外的参数。
+
+已经实现的校验注解及其示例如下（**所有注解的参数必须使用双引号作为定界符，使用单引号会引发错误**）：
+
+#### 1. Required
+
+`Required`注解用于参数必须的情况。它只要求参数存在，对于参数值则没有要求。
+
+```PHP
+/**
+ * ......
+ * @Required("user_name")
+ * @Required("password")
+ */
+public function run($params)
+{
+  ...
+}
+```
+
+如上代码要求`$params`参数数组中必须包含`user_name`和`password`两个元素。
+
+#### 2. NotEmpty
+
+`NotEmpty`注解用于参数不得为空的情况。
+
+```PHP
+/**
+ * ......
+ * @NotEmpty("description")
+ */
+public function run($params)
+{
+  ...
+}
+```
+
+如上代码校验参数`$params`中的`user_name`元素不得为空。
+
+需要注意的是`NotEmpty`注解不对参数是否存在进行校验，它仅在要校验的参数存在的情况下才有效。
+
+如果要求参数必须存在且不得为空，需要联合`Required`注解共同完成校验：
+
+```PHP
+/**
+ * ......
+ * @Required("user_name")
+ * @NotEmpty("user_name")
+ */
+public function run($params)
+{
+  ...
+}
+```
+
+`NotEmpty`支持对要校验的参数去首尾空格：
+
+```PHP
+/**
+ * .....
+ * @NotEmpty("user_name", trim=true)
+ */
+public function run($params)
+......
+```
+
+不过，`trim`仅存在于校验过程中，对实际参数没有影响，因此在`run()`方法内部，仍需自己处理参数的首尾空格问题。
+
+#### 3. 长度校验
+
+对长度的校验有两个注解，`Length`适用于字符串，`Limit`适用于数值。
+
+`Length`注解有`max`和`min`两个可选参数，分别限制最大（含）和最小长度（含），为闭区间。
+
+```PHP
+/**
+ * ......
+ * @Length("password", max=16, min=9)
+ */
+public function run($params)
+......
+```
+
+`Limit`注解也是`max`和`min`两个可选参数，闭区间。不过它支持浮点数。
+
+```PHP
+/**
+ * ......
+ * @Limit("price", min=12.5, max=13.3)
+ */
+public function run($params)
+......
+```
+
+#### 自定义校验类
+
+可以自定义校验类，具体写法可以参照`Lib\Validatetions`中的预置校验类。
+
+简单的说，校验类是依赖`doctrine/annotations`实现的。
+
+首先，自定义校验类要继承`Lib\Validations\AbstractValidation`类，并在类前面添加`@Annotation`和`@Target({”METHOD"})`注解：
+
+```PHP
+use Lib\Validations\AbstractValidation`;
+
+/**
+ * @Annotation
+ * @Target({"METHOD"})
+ */
+class MyValidation extends AbstractValidation {
+  ......
+}
+```
+
+校验类须实现`check()`方法，其参数即为框架转换后的请求参数（也即`run()`方法接收到的参数，见前言`run()`方法的参数。
+
+在校验通过时，`check()`方法返回`true`，失败时返回`false`。
+
+并且在失败时，要设置`err`变量，其类型为数组，包括`code`和`message`两个元素，对应失败的编码和原因。
+
+```PHP
+......
+class MyValidation extends AbstractValidation
+{
+  ......
+  public function check(array $params)
+  {
+    if (...) { // 校验失败的处理
+      $this->err = [
+        'code' => 10086,
+        'message' => '客服小姐姐脾气太大'
+      ];
+      return false;
+    }
+    return true;
+  }
+}
+```
+
+校验类必须的一个变量是`value`，它对应于校验注解的同名参数，如果该参数位于注解的第一位，也可以不命名：
+
+```PHP
+......
+class MyValidation extends AbstractValidation
+{
+  /**
+   * @Required()
+   */
+  public $value;
+
+  public function check(array $params)
+  {
+    $this->value;
+    ......
+  }
+}
+```
+
+```PHP
+......
+class MyApi implements BaseApiInterface
+{
+  /**
+   * @MyValidation(value="username")
+   */
+  public function run($params)
+  {
+
+  }
+}
+```
+
+```PHP
+class MyApi1 implements BaseApiInterface
+{
+  /**
+   * @MyValidation("username")
+   */
+  public function run($params)
+  {
+    ......
+  }
+}
+```
+
+上面例子中的两种注解，其效果是一样的，在`MyValidation`类中的`value`获取的值均为`username`。
+
+校验类的其它公有变量，对应于注解中的同名参数。
+
+书写注解时，要注意，如果参数类型为`string`，则对应的参数值要使用双引号，而不能用单引号。如果参数类型是`array`，要放在一对花括号中，其格式与标准`json`基本一致。
+
+以下是一个比较完整的示例：
+
+```PHP
+namespace Application\Validations;
+
+use Lib\Validations\AbstractValidation;
+
+/**
+ * 利用正则校验参数是否符合规则
+ * @Annotation
+ * @Target({"METHOD"})
+ */
+class MyValidation extends AbstractValidation
+{
+  /**
+   * 要校验的参数名
+   * @Required()
+   * @var string
+   */
+  public $value;
+
+  /**
+   * 出错时的自定义消息
+   * @var array
+   */
+  public $error = null;
+
+  /**
+   * 校验用的正则表达式
+   * @var string
+   */
+  public $rule;
+
+  public function check(array $params)
+  {
+    if (key_exists($this->value, $params)) { // 判断要校验的参数在给出的参数中是否存在，存在才需要校验
+      if (preg_match('/' . $this->rule . '/', $params[$this->value])) { // 用给定的正则进行匹配，成功返回 true
+        return true;
+      } else { // 失败对 $this->err 进行设置，并返回 false
+        $code = (key_exists('code', $this->error)) ? $this->error['code'] : 10086;
+        $message = (key_exists('message', $this->error)) ? $this->error['message'] : '参数格式不符合要求';
+        $this->err = [
+          'code' => $code,
+          'message' => $message
+        ];
+        return false;
+      }
+    } else { // 要校验的参数不存在，无需校验直接返回 true
+      return true;
+    }
+  }
+}
+```
+
+```PHP
+use Application\Api\Get\Test;
+
+use Lib\Core\BaseApiInterface;
+use Lib\Core\ErrorCodeTrait;
+
+class Index implements BaseApiInterface
+{
+  use ErrorCodeTrait;
+
+  /**
+   * ......
+   * @MyValidation("ip", rule="^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$", error={"code":"10090","message":"不是合法的IP地址"})
+   */
+  public function run($params)
+  {
+    ......
+  }
+}
+```
+
+不建议将自定义校验类放在`Lib\Validations`命名空间，在升级框架时可能会受影响。
+
+可以将自定义校验类放在框架可识别的任意命名空间中，并在配置文件中使用`validation_namespaces`对其进行标识。上面的示例就是将校验类放在`Application\Validations`命名空间中，其在配置文件中的定义如下：
+
+```PHP
+return [
+  ...
+  'validation_namespaces' => [
+    'Application\Validations',
+  ],
+  ...
+];
+```

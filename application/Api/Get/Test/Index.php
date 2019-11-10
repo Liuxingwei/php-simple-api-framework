@@ -7,7 +7,6 @@ use Lib\Core\BaseApiInterface;
 use Lib\Core\BaseModel;
 use Lib\Core\DB;
 use Lib\Core\ErrorCodeTrait;
-use Lib\Validations\Required;
 
 class Index implements BaseApiInterface
 {
@@ -141,6 +140,8 @@ class Index implements BaseApiInterface
      *
      * @Required("user_id")
      * @Limit("user_name", min=4, max=9.1)
+     * @NotEmpty("user_id", trim=true)
+     * @MyValidation("ip", rule="^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$", error={"code":"10090","message":"不是合法的IP地址"})
      * @param array $request
      * @return void
      */

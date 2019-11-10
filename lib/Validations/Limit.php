@@ -12,7 +12,6 @@ class Limit extends AbstractValidation
     /**
      *
      * @Required()
-     * @var string
      */
     public $value;
     /**
