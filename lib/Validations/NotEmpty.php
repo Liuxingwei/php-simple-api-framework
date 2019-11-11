@@ -11,14 +11,6 @@ namespace Lib\Validations;
 class NotEmpty extends AbstractValidation
 {
     /**
-     * 待验证的参数名
-     *
-     * @Required()
-     * @var string
-     */
-    public $value;
-
-    /**
      * 是否去首尾空格
      *
      * @var boolean

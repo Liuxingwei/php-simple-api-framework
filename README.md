@@ -910,17 +910,12 @@ class MyValidation extends AbstractValidation
 }
 ```
 
-校验类必须的一个变量是`value`，它对应于校验注解的同名参数，如果该参数位于注解的第一位，也可以不命名：
+校验类的蕨类定义了一个变量`value`，它对应于校验注解的同名参数，如果该参数位于注解的第一位，可以不标名：
 
 ```PHP
 ......
 class MyValidation extends AbstractValidation
 {
-  /**
-   * @Required()
-   */
-  public $value;
-
   public function check(array $params)
   {
     $this->value;
@@ -976,13 +971,6 @@ use Lib\Validations\AbstractValidation;
  */
 class MyValidation extends AbstractValidation
 {
-  /**
-   * 要校验的参数名
-   * @Required()
-   * @var string
-   */
-  public $value;
-
   /**
    * 出错时的自定义消息
    * @var array

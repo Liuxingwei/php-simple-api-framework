@@ -9,12 +9,6 @@ namespace Lib\Validations;
 class Length extends AbstractValidation
 {
     /**
-     *
-     * @Required()
-     * @var string
-     */
-    public $value;
-    /**
      * 上限
      *
      * @var int

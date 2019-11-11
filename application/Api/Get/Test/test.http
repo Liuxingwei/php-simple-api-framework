@@ -3,8 +3,9 @@ GET http://localhost:3000/api/test/index
 ?user_id=3
 # &user_name=9.2
 &user_name=9.1
-&ip=329.563
-# &ip=192.168.1.25
+# &ip=329.563
+&ip=192.168.1.25
+&email=abc.abc@abc.com
 debug: true
 
 ###

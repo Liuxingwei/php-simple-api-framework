@@ -1,15 +1,14 @@
 <?php
 
-namespace Application\Validations;
+namespace Lib\Validations;
 
 use Lib\Validations\AbstractValidation;
 
 /**
- * 利用正则校验参数是否符合规则
  * @Annotation
  * @Target({"METHOD"})
  */
-class MyValidation extends AbstractValidation
+class Rule extends AbstractValidation
 {
     /**
      * 出错时的自定义消息
@@ -29,8 +28,10 @@ class MyValidation extends AbstractValidation
             if (preg_match('/' . $this->rule . '/', $params[$this->value])) { // 用给定的正则进行匹配，成功返回 true
                 return true;
             } else { // 失败对 $this->err 进行设置，并返回 false
-                $code = (key_exists('code', $this->error)) ? $this->error['code'] : 10086;
-                $message = (key_exists('message', $this->error)) ? $this->error['message'] : '参数格式不符合要求';
+                $code = (key_exists('code', $this->error)) ? $this->error['code'] : $this->errCode->PARAM_NOT_COMPLIANCE_RULE['code'];
+                $message = (key_exists('message', $this->error))
+                    ? $this->errCode->mapMsg($this->error['message'], ['param' => $params[$this->value]])
+                    : $this->errCode->mapMsg($this->errCode->PARAM_NOT_COMPLIANCE_RULE['message'], ['param' => $params[$this->value]]);
                 $this->err = [
                     'code' => $code,
                     'message' => $message

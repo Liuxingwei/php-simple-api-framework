@@ -12,6 +12,13 @@ abstract class AbstractValidation
 {
     use ErrorCodeTrait;
 
+    /**
+     * 要校验的参数名
+     * @Required()
+     * @var string
+     */
+    public $value;
+
     protected $err;
 
     /**

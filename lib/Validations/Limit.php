@@ -8,12 +8,6 @@ namespace Lib\Validations;
  */
 class Limit extends AbstractValidation
 {
-
-    /**
-     *
-     * @Required()
-     */
-    public $value;
     /**
      * 上限
      *
