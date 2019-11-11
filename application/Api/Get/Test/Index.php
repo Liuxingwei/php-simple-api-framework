@@ -142,7 +142,7 @@ class Index implements BaseApiInterface
      * @Limit("user_name", min=4, max=9.1)
      * @NotEmpty("user_id", trim=true)
      * @MyValidation("ip", rule="^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$", error={"code":"10090","message":"不是合法的IP地址"})
-     * @Rule("email", rule="^.*?@.*?\..*?$", error={"message":"参数不是合法的email"})
+     * @Rule("email", rule="^.*?@.*?\..*?$", error={"message":"参数 {{:param}} 不是合法的 email"})
      * @param array $request
      * @return void
      */
