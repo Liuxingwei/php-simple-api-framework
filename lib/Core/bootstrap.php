@@ -8,6 +8,8 @@ if (file_exists(ROOT . '/conf/env.php')) {
     $_ENV['config'] = array_replace_recursive($_ENV['config'], $env);
 }
 defined('CONFIG') || define('CONFIG', $_ENV['config']);
+$defaultTimezone = isset(CONFIG['default_timezone']) ? CONFIG['default_timezone'] : 'Asia/Shanghai';
+date_default_timezone_set($defaultTimezone);
 crossDomain: (function () {
     if (isset(CONFIG['cross_domain'])) {
         $crossDomain = CONFIG['cross_domain'];

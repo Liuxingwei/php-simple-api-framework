@@ -855,7 +855,7 @@ class DB
         if ($this->group) {
             $countSql = 'SELECT FOUND_ROWS()';
         } else {
-            $countSql = $this->generateBaseSql('count(*) total');
+            $countSql = $this->generateBaseSql('count(*) total, ' . $this->fields);
         }
 
         $this->sth = $this->dbh()->prepare($countSql, array(PDO::ATTR_CURSOR => PDO::CURSOR_FWDONLY));
