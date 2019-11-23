@@ -206,28 +206,34 @@ server {
     + Put
       + Example
         - Index.php
+  + Model
+    - SafExample.php
+  + Validations
+    - MyValidation.php
 + conf
   - config.php.sample
   - di_config.php.sample
++ doc
+  - DB-Class-Usage.md
 + lib
   + Core
     - App.php
     - BaseApiInterface.php
+    - BaseModel.php
     - bootstrap.php
     - DB.php
     - ErrorCode.php
+    - ErrorCodeTrait.php
     - Request.php
     - Response.php
     - SafException.php
   + Validations
-    - Error.php
+    - AbstractValidation.php
     - Length.php
     - Limit.php
     - NotEmpty.php
     - Required.php
-    - ValidationInterface.php
-+ doc
-  - DB-Class-Usage.md
+    - Rule.php
 + public
   - .htaccess
   - index.html
