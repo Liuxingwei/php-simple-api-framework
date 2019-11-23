@@ -211,8 +211,12 @@ server {
   + Validations
     - MyValidation.php
 + conf
+  + err_define
+    - cn.php.sample
+    - default.php
   - config.php.sample
   - di_config.php.sample
+  - env.php.sample
 + doc
   - DB-Class-Usage.md
 + lib
